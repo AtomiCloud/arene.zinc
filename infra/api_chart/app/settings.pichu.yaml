@@ -1,0 +1,41 @@
+$schema: ./schema.json
+# Native
+App:
+  Landscape: pichu
+  EnableSwagger: true
+  GenerateConfig: false
+Swagger:
+  Title: Pichu Arene Zinc API
+# OTEL
+Logs:
+  Exporter:
+    Console:
+      Enabled: false
+    Otlp:
+      Enabled: true
+Trace:
+  Exporter:
+    Otlp:
+      Enabled: true
+
+Metrics:
+  Exporter:
+    Otlp:
+      Enabled: true
+
+# Infra-based
+Database:
+  MAIN:
+    AutoMigrate: false
+
+Cache:
+  MAIN:
+    SSL: true
+
+# external
+HttpClient: {}
+Auth:
+  Settings:
+    Issuer: # to be filled
+    Audience: https://api.zinc.arene.pichu
+    Domain: # to be filled

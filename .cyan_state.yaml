@@ -1,0 +1,100 @@
+atomi/workspace:
+  active: true
+  history:
+    - version: 21
+      time: 2025-09-21T03:33:04.781357Z
+      answers:
+        atomi/workspace/service:
+          type: String
+          value: zinc
+        atomi/workspace/runtime:
+          type: String
+          value: .NET
+        atomi/workspace/enable-docker:
+          type: Bool
+          value: true
+        atomi/workspace/enable-helm:
+          type: Bool
+          value: true
+        atomi/workspace/platform:
+          type: String
+          value: arene
+        atomi/workspace/enable-secret:
+          type: Bool
+          value: true
+      deterministic_states: {}
+atomi/dotnet-api:
+  active: true
+  history:
+    - version: 10
+      time: 2025-09-26T08:46:07.074586Z
+      answers:
+        platform:
+          type: String
+          value: arene
+        service:
+          type: String
+          value: zinc
+        port:
+          type: String
+          value: '9004'
+        desc:
+          type: String
+          value: AtomiCloud's Marketing Engine
+        domain:
+          type: String
+          value: acme.atomi.cloud
+        name:
+          type: String
+          value: AtomiCloud's Marketing Engine
+        tiltport:
+          type: String
+          value: '11001'
+      deterministic_states: {}
+    - version: 11
+      time: 2025-09-26T10:59:21.083904Z
+      answers:
+        desc:
+          type: String
+          value: AtomiCloud's Marketing Engine
+        domain:
+          type: String
+          value: acme.atomi.cloud
+        service:
+          type: String
+          value: zinc
+        port:
+          type: String
+          value: '9004'
+        platform:
+          type: String
+          value: arene
+        tiltport:
+          type: String
+          value: '11001'
+        name:
+          type: String
+          value: AtomiCloud's Marketing Engine
+      deterministic_states: {}
+atomi/nix-init:
+  active: true
+  history:
+    - version: 14
+      time: 2025-09-21T03:32:33.663421Z
+      answers:
+        infra:
+          type: Bool
+          value: true
+        init-type:
+          type: String
+          value: AtomiCloud Suite
+        service:
+          type: String
+          value: zinc
+        platform:
+          type: String
+          value: arene
+        runtime:
+          type: String
+          value: .NET
+      deterministic_states: {}

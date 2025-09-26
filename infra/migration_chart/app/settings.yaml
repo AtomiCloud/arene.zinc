@@ -1,0 +1,204 @@
+$schema: ./schema.json
+
+# Native
+AllowedHosts: '*'
+Kestrel:
+  Endpoints:
+    Http:
+      Url: http://+:9004
+Logging:
+  LogLevel:
+    Default: Information
+  #  Console:
+  #    LogLevel:
+  #      Default: Debug
+  OpenTelemetry:
+    IncludeFormattedMessage: true
+    IncludeScopes: true
+    ParseStateValues: false
+# Domain
+App:
+  Landscape: lapras
+  Platform: arene
+  Service: zinc
+  Module: api
+  Mode: Server
+  DefaultCors: AllowAll
+  Version: 1.0.0
+  EnableSwagger: true
+  GenerateConfig: false
+Swagger:
+  Title: Lapras Arene Zinc API
+  Description: "Arene Zinc: AtomiCloud's Marketing Engine"
+  OpenApiContact:
+    Name: kirinnee
+    Email: kirinnee97@gmail.com
+ErrorPortal:
+  Enabled: true
+  Scheme: http
+  Host: localhost:3000
+  EnableExceptionResponse: true
+# Security
+Cors:
+  - Name: AllowAll
+    PreflightMaxAge: 600
+
+# OTEL
+Logs:
+  Exporter:
+    Console:
+      Enabled: false
+    Otlp:
+      Enabled: false
+      Endpoint: 'http://silicon-otlp-collector.sulfoxide.svc:4317'
+      ProcessorType: Batch # or simple
+      Protocol: Grpc # or HttpProtobuf
+      Timeout: 30000
+      BatchSize: 512
+      QueueSize: 2048
+      Delay: 5000
+      Headers: ''
+
+Trace:
+  Instrument:
+    EFCore:
+      Enabled: true
+      SetDbStatementForStoredProcedure: true
+      SetDbStatementForText: true
+    AspNetCore:
+      Enabled: true
+      GrpcSupport: true
+      RecordException: true
+    HttpClient:
+      Enabled: true
+      RecordException: true
+    SqlClient:
+      Enabled: false
+      RecordException: true
+      SetDbStatementForStoredProcedure: true
+      EnableConnectionLevelAttributes: true
+      SetDbStatementForText: true
+    GrpcClient:
+      Enabled: true
+      SuppressDownstreamInstrumentation: true
+  Exporter:
+    Console:
+      Enabled: false
+    Otlp:
+      Enabled: false
+      Endpoint: 'http://silicon-otlp-collector.sulfoxide.svc:4317'
+      Timeout: 30000
+      ProcessorType: Batch # or simple
+      Protocol: Grpc # or HttpProtobuf
+      BatchSize: 512
+      QueueSize: 2048
+      Delay: 5000
+      Headers: ''
+
+Metrics:
+  Instrument:
+    AspNetCore: true
+    HttpClient: true
+    Process: true
+    Runtime: true
+  Exporter:
+    Console:
+      Enabled: false
+      ExportInterval: 1000
+    Otlp:
+      Enabled: false
+      Endpoint: 'http://silicon-otlp-collector.sulfoxide.svc:4317'
+      ExportInterval: 1000
+      Timeout: 30000
+      ProcessorType: Batch # or simple
+      Protocol: Grpc # or HttpProtobuf
+      BatchSize: 512
+      QueueSize: 2048
+      Delay: 5000
+      Headers: ''
+
+# Infra-based
+Database:
+  MAIN:
+    Host: zinc-maindb
+    User: admin
+    Password: supersecret
+    AutoMigrate: false
+    Database: arene-zinc
+    Port: 5432
+    Timeout: 60
+Cache:
+  MAIN:
+    Endpoints:
+      - zinc-maincache:6379
+    Password: supersecret
+
+    ConnectTimeout: 5000
+    AbortConnect: true
+    AllowAdmin: false
+    ConnectRetry: 3
+    SSL: false
+    SyncTimeout: 5000
+BlockStorage:
+  MAIN:
+    AccessKey: 'admin'
+    SecretKey: 'supersecret'
+    Bucket: 'arene-zinc-main-storage'
+    Read:
+      Host: mainstorage.zinc.arene.lapras.lvh.me
+      Port: 443
+      Scheme: https
+    Write:
+      Host: zinc-mainstorage
+      Port: 443
+      Scheme: https
+    Policy: Private
+    UseSSL: true
+    EnsureBucketCreation: false
+Smtp: {}
+#  TRANSACTIONAL:
+#    Host: email-smtp.ap-southeast-1.amazonaws.com
+#    Port: 2587
+#    Username: transactional-user
+#    Password: transactional-secret
+#    FromEmail: noreply@notifications.acme.atomi.cloud
+#    FromName: AtomiCloud's Marketing Engine Notifications
+#    EnableSsl: true
+#    UseDefaultCredentials: false
+#    Timeout: 5000
+# external
+HttpClient: {}
+#  Logto:
+#    BaseAddress: # to be filled
+#    Timeout: 60
+Encryption:
+  Secret: b4c085794f8834dae77234bd7082871d # infisical-scan:ignore
+Auth:
+  Enabled: false
+#  Management:
+#    Endpoint: # to be filled
+#    Id: # to be filled
+#    Secret: supersecret
+#    Resource: # to be filled
+#    Scope: all
+#  Settings:
+#    Policies:
+#      OnlyAdmin:
+#        Target:
+#          - admin
+#        Type: 'All'
+#        Field: 'scope'
+#      Registered:
+#        Target:
+#          - 'true'
+#        Type: 'All'
+#        Field: 'arenezinc'
+#    Issuer: # to be filled
+#    Audience: https://api.zinc.arene.lapras
+#    Domain: # to be filled
+#    TokenValidation:
+#      ValidateAudience: true
+#      ValidateIssuer: true
+#      ClockSkew: 0
+#      ValidateLifetime: true
+#      ValidateIssuerSigningKey: true
