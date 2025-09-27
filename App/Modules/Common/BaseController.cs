@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace App.Modules.Common;
 
-public class AtomiControllerBase(IAuthHelper h) : ControllerBase
+public class AtomiControllerBase : ControllerBase
 {
   protected ActionResult<T> Error<T>(HttpStatusCode code, IDomainProblem problem)
   {
@@ -92,67 +92,67 @@ public class AtomiControllerBase(IAuthHelper h) : ControllerBase
   }
 
 
-  protected Result<Unit> Guard(string? target)
-  {
-    if (target != null && this.Sub() == target) return new Unit();
-    return new Unauthorized(
-      "You are not authorized to access this resource",
-      [new("sub", this.Sub() ?? "none")],
-      [new("sub", target ?? "none")]
-    ).ToException();
-  }
+  // protected Result<Unit> Guard(string? target)
+  // {
+  //   if (target != null && this.Sub() == target) return new Unit();
+  //   return new Unauthorized(
+  //     "You are not authorized to access this resource",
+  //     [new("sub", this.Sub() ?? "none")],
+  //     [new("sub", target ?? "none")]
+  //   ).ToException();
+  // }
+  //
+  // protected Task<Result<Unit>> GuardAsync(string? target)
+  // {
+  //   return Task.FromResult(this.Guard(target));
+  // }
 
-  protected Task<Result<Unit>> GuardAsync(string? target)
-  {
-    return Task.FromResult(this.Guard(target));
-  }
+  // protected Result<Unit> GuardOrAll(string? target, string field, params string[] value)
+  // {
+  //   if (
+  //     (target != null && this.Sub() == target)
+  //     ||
+  //     h.HasAll(this.HttpContext.User, field, value)
+  //   ) return new Unit().ToResult();
+  //   h.Logger.LogInformation(
+  //     "Auth Failed (All): Target: {Target}, Sub: {Sub}, Field: {Field}, Value: {@Value}, Target Pass: {TargetPass}, Field Pass: {FieldPass}",
+  //     target, this.Sub(), field, value, target != null && this.Sub() == target,
+  //     h.HasAny(this.HttpContext.User, field, value));
+  //   return new Unauthorized("You are not authorized to access this resource",
+  //     h.FieldToScope(this.HttpContext.User, field)
+  //       .Select(x => new Scope(field, x)).ToArray(),
+  //     value.Select(x => new Scope(field, x)).ToArray()
+  //   ).ToException();
+  // }
+  //
+  // protected Task<Result<Unit>> GuardOrAllAsync(string? target, string field, params string[] value)
+  // {
+  //   return Task.FromResult(this.GuardOrAll(target, field, value));
+  // }
 
-  protected Result<Unit> GuardOrAll(string? target, string field, params string[] value)
-  {
-    if (
-      (target != null && this.Sub() == target)
-      ||
-      h.HasAll(this.HttpContext.User, field, value)
-    ) return new Unit().ToResult();
-    h.Logger.LogInformation(
-      "Auth Failed (All): Target: {Target}, Sub: {Sub}, Field: {Field}, Value: {@Value}, Target Pass: {TargetPass}, Field Pass: {FieldPass}",
-      target, this.Sub(), field, value, target != null && this.Sub() == target,
-      h.HasAny(this.HttpContext.User, field, value));
-    return new Unauthorized("You are not authorized to access this resource",
-      h.FieldToScope(this.HttpContext.User, field)
-        .Select(x => new Scope(field, x)).ToArray(),
-      value.Select(x => new Scope(field, x)).ToArray()
-    ).ToException();
-  }
-
-  protected Task<Result<Unit>> GuardOrAllAsync(string? target, string field, params string[] value)
-  {
-    return Task.FromResult(this.GuardOrAll(target, field, value));
-  }
-
-  protected Result<Unit> GuardOrAny(string? target, string field, params string[] value)
-  {
-    if (
-      (target != null && this.Sub() == target)
-      ||
-      h.HasAny(this.HttpContext.User, field, value)
-    ) return new Unit().ToResult();
-
-    h.Logger.LogInformation(
-      "Auth Failed (Any): Target: {Target}, Sub: {Sub}, Field: {Field}, Value: {@Value}, Target Pass: {TargetPass}, Field Pass: {FieldPass}",
-      target, this.Sub(), field, value, target != null && this.Sub() == target,
-      h.HasAny(this.HttpContext.User, field, value));
-    return new Unauthorized("You are not authorized to access this resource",
-      h.FieldToScope(this.HttpContext.User, field)
-        .Select(x => new Scope(field, x)).ToArray(),
-      value.Select(x => new Scope(field, x)).ToArray()
-    ).ToException();
-  }
-
-  protected Task<Result<Unit>> GuardOrAnyAsync(string? target, string field, params string[] value)
-  {
-    return Task.FromResult(this.GuardOrAny(target, field, value));
-  }
-
-  protected string? Sub() => this.HttpContext.User?.Identity?.Name;
+  // protected Result<Unit> GuardOrAny(string? target, string field, params string[] value)
+  // {
+  //   if (
+  //     (target != null && this.Sub() == target)
+  //     ||
+  //     h.HasAny(this.HttpContext.User, field, value)
+  //   ) return new Unit().ToResult();
+  //
+  //   h.Logger.LogInformation(
+  //     "Auth Failed (Any): Target: {Target}, Sub: {Sub}, Field: {Field}, Value: {@Value}, Target Pass: {TargetPass}, Field Pass: {FieldPass}",
+  //     target, this.Sub(), field, value, target != null && this.Sub() == target,
+  //     h.HasAny(this.HttpContext.User, field, value));
+  //   return new Unauthorized("You are not authorized to access this resource",
+  //     h.FieldToScope(this.HttpContext.User, field)
+  //       .Select(x => new Scope(field, x)).ToArray(),
+  //     value.Select(x => new Scope(field, x)).ToArray()
+  //   ).ToException();
+  // }
+  //
+  // protected Task<Result<Unit>> GuardOrAnyAsync(string? target, string field, params string[] value)
+  // {
+  //   return Task.FromResult(this.GuardOrAny(target, field, value));
+  // }
+  //
+  // protected string? Sub() => this.HttpContext.User?.Identity?.Name;
 }

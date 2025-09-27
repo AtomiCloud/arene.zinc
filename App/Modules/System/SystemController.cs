@@ -20,8 +20,8 @@ public record Info(
 [ApiVersionNeutral]
 [ApiController]
 [Route("/")]
-public class SystemController(IOptionsSnapshot<AppOption> app, IAuthHelper h)
-  : AtomiControllerBase(h)
+public class SystemController(IOptionsSnapshot<AppOption> app)
+  : AtomiControllerBase
 {
   [HttpGet]
   public ActionResult<Info> SystemInfo()

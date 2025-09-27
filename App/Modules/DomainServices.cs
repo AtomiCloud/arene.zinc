@@ -1,7 +1,9 @@
+using App.Modules.Projects.Data;
 using App.Modules.System;
 using App.Modules.Users.Data;
 using App.StartUp.Services;
 using Domain;
+using Domain.Projects;
 using Domain.User;
 
 namespace App.Modules;
@@ -16,6 +18,13 @@ public static class DomainServices
 
     s.AddScoped<IUserRepository, UserRepository>()
       .AutoTrace<IUserRepository>();
+    
+    // Project
+    s.AddScoped<IProjectService, ProjectService>()
+      .AutoTrace<IProjectService>();
+    s.AddScoped<IProjectRepository, ProjectRepository>()
+      .AutoTrace<IProjectRepository>();
+    
 
 
     // Transaction Manager

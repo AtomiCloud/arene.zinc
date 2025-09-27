@@ -1,3 +1,4 @@
+using App.Modules.Projects.Data;
 using App.Modules.Users.Data;
 using App.StartUp.Options;
 using App.StartUp.Services;
@@ -14,6 +15,7 @@ public class MainDbContext(IOptionsMonitor<Dictionary<string, DatabaseOption>> o
 
 
   public DbSet<UserData> Users { get; set; }
+  public DbSet<ProjectData> Projects { get; set; }
 
   protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
   {
@@ -27,5 +29,8 @@ public class MainDbContext(IOptionsMonitor<Dictionary<string, DatabaseOption>> o
   {
     var user = modelBuilder.Entity<UserData>();
     user.HasIndex(x => x.Username).IsUnique();
+
+    var project = modelBuilder.Entity<ProjectData>();
+    project.HasIndex(x => x.Name);
   }
 }

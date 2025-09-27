@@ -30,8 +30,8 @@ public static class ValidationUtility
   {
     return ruleBuilder
       .GreaterThanOrEqualTo(0)
-      .LessThanOrEqualTo(100)
-      .WithMessage("Limit has to be between 0 to 100 characters");
+      .LessThanOrEqualTo(500)
+      .WithMessage("Limit has to be between 0 to 500");
   }
 
   public static IRuleBuilderOptions<T, int?> Skip<T>(
