@@ -5,11 +5,16 @@ public record SubscriptionTypeSearch
   public string? Name { get; init; }
   public string? Desc { get; init; }
   public Guid? Guid { get; init; }
+  
+  public int Limit { get; init; }
+  
+  public int Skip { get; init; }
 }
 
-public record SubscriberType
+public record SubscriptionType
 {
   public required SubscriptionTypePrincipal Principal { get; init; }
+  public required uint Count { get; init; }
 }
 
 public record SubscriptionTypePrincipal

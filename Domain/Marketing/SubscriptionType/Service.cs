@@ -9,7 +9,7 @@ public class SubscriptionTypeService(ISubscriptionTypeRepository subRepo) : ISub
     return subRepo.Search(search);
   }
 
-  public Task<Result<SubscriberType?>> Get(Guid projectId, string subscriptionType)
+  public Task<Result<SubscriptionType?>> Get(Guid projectId, string subscriptionType)
   {
     return subRepo.Get(projectId, subscriptionType);
   }

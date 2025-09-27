@@ -1,4 +1,5 @@
 using App.Modules.Projects.Data;
+using App.Modules.SubscriptionTypes.Data;
 using App.Modules.Users.Data;
 using App.StartUp.Options;
 using App.StartUp.Services;
@@ -16,6 +17,7 @@ public class MainDbContext(IOptionsMonitor<Dictionary<string, DatabaseOption>> o
 
   public DbSet<UserData> Users { get; set; }
   public DbSet<ProjectData> Projects { get; set; }
+  public DbSet<SubscriptionTypeData> SubscriptionTypes { get; set; }
 
   protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
   {
@@ -32,5 +34,10 @@ public class MainDbContext(IOptionsMonitor<Dictionary<string, DatabaseOption>> o
 
     var project = modelBuilder.Entity<ProjectData>();
     project.HasIndex(x => x.Name);
+
+    var subType = modelBuilder.Entity<SubscriptionTypeData>();
+    subType.HasKey(x => new { x.ProjectId, x.Id });
+    subType.HasIndex(x => new { x.ProjectId, x.Id }).IsUnique();
+    subType.Property(x => x.Id).IsRequired();
   }
 }

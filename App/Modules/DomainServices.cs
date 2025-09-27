@@ -1,8 +1,10 @@
 using App.Modules.Projects.Data;
+using App.Modules.SubscriptionTypes.Data;
 using App.Modules.System;
 using App.Modules.Users.Data;
 using App.StartUp.Services;
 using Domain;
+using Domain.Marketing.SubscriptionType;
 using Domain.Projects;
 using Domain.User;
 
@@ -24,6 +26,12 @@ public static class DomainServices
       .AutoTrace<IProjectService>();
     s.AddScoped<IProjectRepository, ProjectRepository>()
       .AutoTrace<IProjectRepository>();
+
+    // Subscription Types
+    s.AddScoped<ISubscriptionTypeService, SubscriptionTypeService>()
+      .AutoTrace<ISubscriptionTypeService>();
+    s.AddScoped<ISubscriptionTypeRepository, SubscriptionTypeRepository>()
+      .AutoTrace<ISubscriptionTypeRepository>();
     
 
 

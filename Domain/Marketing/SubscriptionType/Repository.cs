@@ -7,7 +7,7 @@ public interface ISubscriptionTypeRepository
 {
   Task<Result<IEnumerable<SubscriptionTypePrincipal>>> Search(SubscriptionTypeSearch search);
   
-  Task<Result<SubscriberType?>> Get(Guid projectId, string subscriptionType);
+  Task<Result<SubscriptionType?>> Get(Guid projectId, string subscriptionType);
 
   Task<Result<SubscriptionTypePrincipal?>> Create(Guid projectId, string subName, SubscriptionTypeRecord record);
 
