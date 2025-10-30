@@ -115,7 +115,7 @@ public class OtelRedisDatabase(IRedisDatabase redis)
     {
       var carrier = otelRedisMessage?.Context ?? [];
       var parentContext = Propagator.Extract(default, carrier,
-        (c, k) => c.TryGetValue(k, out var v) ?  [v] : []);
+        (c, k) => c.TryGetValue(k, out var v) ? [v] : []);
       Baggage.Current = parentContext.Baggage;
 
       using var activity = ActivitySource.StartActivity();

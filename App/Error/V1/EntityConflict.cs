@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using CarboxylicBoron;
 using Newtonsoft.Json;
 using NJsonSchema.Annotations;
 
@@ -24,7 +25,7 @@ public class EntityConflict : IDomainProblem
   public string Title { get; } = "EntityConflict";
 
   [JsonIgnore, JsonSchemaIgnore]
-  public string Version { get; } = "v1";
+  public string Namespace { get; } = "v1";
 
   [JsonIgnore, JsonSchemaIgnore]
   public string Detail { get; } = string.Empty;

@@ -13,7 +13,7 @@ using App.StartUp.Options.Traces;
 using App.StartUp.Services;
 using App.StartUp.Services.Swagger;
 using App.Utility;
-using CSharp_Result;
+using CarboxylicLithium;
 using FluentValidation;
 using Microsoft.Extensions.Options;
 using OpenTelemetry.Resources;

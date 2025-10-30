@@ -3,6 +3,7 @@ with packages;
 {
   system = [
     atomiutils
+    xmlstarlet
   ];
 
   dev = [

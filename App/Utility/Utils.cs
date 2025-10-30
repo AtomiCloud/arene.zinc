@@ -1,10 +1,9 @@
 using System.Text;
 using System.Text.Json;
-using App.Error;
-using CSharp_Result;
+using CarboxylicBoron;
+using CarboxylicLithium;
 using Microsoft.Extensions.Options;
 using NJsonSchema;
-using static System.Text.ASCIIEncoding;
 
 namespace App.Utility;
 
@@ -14,7 +13,6 @@ public static class Utils
   public const string StandardTimeFormat = "HH:mm:ss";
 
   public static JsonSchema OptionSchema = JsonSchema.CreateAnySchema();
-
 
   public static Result<T?> ToNullableResultOr<T>(T? obj, Func<T, Result<T>> act)
   {
@@ -59,7 +57,6 @@ public static class Utils
   public static DateOnly ToDate(this string date) =>
     DateOnly.ParseExact(date, StandardDateFormat);
 
-
   public static TimeOnly ToTime(this string time) =>
     TimeOnly.ParseExact(time, StandardTimeFormat);
 
@@ -68,7 +65,6 @@ public static class Utils
 
   public static string ToStandardTimeFormat(this TimeOnly time) =>
     time.ToString(StandardTimeFormat);
-
 
   public static DomainProblemException ToException(this IDomainProblem p)
   {

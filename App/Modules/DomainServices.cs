@@ -1,9 +1,11 @@
 using App.Modules.Projects.Data;
+using App.Modules.Subscribers.Data;
 using App.Modules.SubscriptionTypes.Data;
 using App.Modules.System;
 using App.Modules.Users.Data;
 using App.StartUp.Services;
 using Domain;
+using Domain.Marketing.Subscribers;
 using Domain.Marketing.SubscriptionType;
 using Domain.Projects;
 using Domain.User;
@@ -20,7 +22,7 @@ public static class DomainServices
 
     s.AddScoped<IUserRepository, UserRepository>()
       .AutoTrace<IUserRepository>();
-    
+
     // Project
     s.AddScoped<IProjectService, ProjectService>()
       .AutoTrace<IProjectService>();
@@ -32,7 +34,13 @@ public static class DomainServices
       .AutoTrace<ISubscriptionTypeService>();
     s.AddScoped<ISubscriptionTypeRepository, SubscriptionTypeRepository>()
       .AutoTrace<ISubscriptionTypeRepository>();
-    
+
+    // Subscribers
+    s.AddScoped<ISubscriberService, SubscriberService>()
+      .AutoTrace<ISubscriberService>();
+    s.AddScoped<ISubscriberRepository, SubscriberRepository>()
+      .AutoTrace<ISubscriberRepository>();
+
 
 
     // Transaction Manager

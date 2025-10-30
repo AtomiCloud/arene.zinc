@@ -5,11 +5,11 @@ public record UserSearch
   public string? Id { get; init; }
 
   public string? Username { get; init; }
-  
+
   public string? Email { get; init; }
-  
+
   public bool? EmailVerified { get; init; }
-  
+
   public bool? Active { get; init; }
 
   public int Limit { get; init; }

@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using System.Text.Json.Serialization;
 using App.Modules.Common;
+using CarboxylicBoron;
 
 namespace App.Error.V1;
 
@@ -24,7 +25,7 @@ public class EntityNotFound : IDomainProblem
   public string Title { get; } = "Entity Not Found";
 
   [JsonIgnore]
-  public string Version { get; } = "v1";
+  public string Namespace { get; } = "v1";
 
   public string Detail { get; } = string.Empty;
 

@@ -1,7 +1,7 @@
 using System.Collections.Concurrent;
 using System.Reflection;
 using System.Text;
-using CSharp_Result;
+using CarboxylicLithium;
 using HandlebarsDotNet;
 
 namespace App.StartUp.Email;

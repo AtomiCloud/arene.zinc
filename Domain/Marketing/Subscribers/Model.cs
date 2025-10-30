@@ -14,9 +14,9 @@ public record SubscriptionStatus
 {
   public required string Type { get; init; }
   public required bool Enabled { get; init; }
-  
+
   public required LegalBasis LegalBasis { get; init; }
-  
+
   public required string LegalReason { get; init; }
   public required DateTimeOffset UpdatedAt { get; init; }
 }
@@ -25,14 +25,14 @@ public record SubscriptionStatus
 public record Subscriber
 {
   public required SubscriberPrincipal Principal { get; init; }
-  
+
 }
 
 public record SubscriberPrincipal
 {
   public required Guid ProjectId { get; init; }
   public required string Email { get; init; }
-  
+
 
   public required SubscriberComputed Computed { get; init; }
 }

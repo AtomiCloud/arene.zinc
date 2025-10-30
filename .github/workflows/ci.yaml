@@ -11,6 +11,15 @@ jobs:
     with:
       atomi_platform: arene
       atomi_service: zinc
+  unit-tests:
+    name: Unit Tests
+    uses: ./.github/workflows/⚡reusable-tests.yaml
+    secrets: inherit
+    with:
+      atomi_platform: arene
+      atomi_service: zinc
+      test_dir: UnitTest
+      target: Domain
   build-api:
     name: Build API Image
     uses: ./.github/workflows/⚡reusable-docker.yaml

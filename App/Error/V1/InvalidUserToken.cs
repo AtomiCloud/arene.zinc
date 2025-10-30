@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using System.Text.Json.Serialization;
 using App.Modules.Common;
+using CarboxylicBoron;
 
 namespace App.Error.V1;
 
@@ -21,13 +22,13 @@ public class InvalidUserToken : IDomainProblem
 
   [JsonIgnore] public string Title { get; } = "Invalid User Token";
 
-  [JsonIgnore] public string Version { get; } = "v1";
+  [JsonIgnore] public string Namespace { get; } = "v1";
 
   public string Detail { get; } = string.Empty;
 
   [Description("All the claims that are expect from backend but not supplied by frontend")]
   public string[] MissingClaims { get; } = [];
-  
+
   [Description("Type of token that was missing, either 'ID' or 'Access'")]
   public string TokenType { get; } = string.Empty;
 }

@@ -38,7 +38,7 @@ public static class OptionsExtensions
     .Where(x => x is { Length: > 0 })
     .Select(x => x!)
     .ToArray();
-  
+
   private static readonly string[] SmtpProviders = typeof(SmtpProviders)
     .GetFields()
     .Select(x => x.GetValue(null)?.ToString())
@@ -60,7 +60,7 @@ public static class OptionsExtensions
     services.RegisterOption<AppOption>(AppOption.Key)
       .Validate(app => CorsPolicies.Any(x => x == app.DefaultCors),
         "Option App:DefaultCors (Config) must be in CorsPolicies (Class)");
-    
+
     // Register Swagger Options
     services.RegisterOption<OpenApiOption>(OpenApiOption.Key);
 
@@ -129,7 +129,7 @@ public static class OptionsExtensions
         c => c.All(x => SmtpProviders.Any(d => d == x.Key)),
         "Smtp.Key (Config File) must be in SmtpProviders (Class)"
       );
-    
+
     return services;
   }
 }

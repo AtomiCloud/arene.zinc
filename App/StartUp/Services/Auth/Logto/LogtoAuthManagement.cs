@@ -2,7 +2,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using App.StartUp.Registry;
 using App.Utility;
-using CSharp_Result;
+using CarboxylicLithium;
 
 namespace App.StartUp.Services.Auth.Logto;
 
@@ -118,7 +118,8 @@ public class LogtoAuthManagement(
             Content = new StringContent(new ClaimsPatchReq
             {
               CustomData = new Dictionary<string, string?> { { claimKey, null } }
-            }.ToJson()) { Headers = { ContentType = new MediaTypeHeaderValue("application/json") } }
+            }.ToJson())
+            { Headers = { ContentType = new MediaTypeHeaderValue("application/json") } }
           };
           using var response = await this.HttpClient.SendAsync(request);
           response.EnsureSuccessStatusCode();

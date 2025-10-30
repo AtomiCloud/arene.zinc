@@ -20,13 +20,13 @@ public static class ProjectMapper
 
   public static ProjectRecord ToRecord(this UpdateProjectReq p) =>
     new() { Name = p.Name, Open = p.Open };
-  
+
   public static ProjectSearch ToDomain(this SearchProjectQuery query) =>
     new()
     {
-      Id = query.Id, 
-      Name = query.Name, 
-      Limit = query.Limit ?? 100, 
+      Id = query.Id,
+      Name = query.Name,
+      Limit = query.Limit ?? 100,
       Skip = query.Skip ?? 0,
     };
 }

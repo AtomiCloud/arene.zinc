@@ -1,7 +1,7 @@
 using App.Error.V1;
 using App.StartUp.Database;
 using App.Utility;
-using CSharp_Result;
+using CarboxylicLithium;
 using Domain.Projects;
 using Domain.User;
 using EntityFramework.Exceptions.Common;
@@ -16,7 +16,7 @@ public class ProjectRepository(MainDbContext db, ILogger<ProjectRepository> logg
     try
     {
       var query = db.Projects.AsQueryable();
-      if (search.Name != null) query = query.Where(x => EF.Functions.Like(x.Name, $"%{search.Name}%"));
+      if (search.Name != null) query = query.Where(x => EF.Functions.ILike(x.Name, $"%{search.Name}%"));
       if (search.Id != null) query = query.Where(x => x.Id == search.Id);
       return await query
         .Skip(search.Skip)

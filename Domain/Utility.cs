@@ -1,4 +1,4 @@
-using CSharp_Result;
+using CarboxylicLithium;
 using Domain.Exceptions;
 
 namespace Domain;

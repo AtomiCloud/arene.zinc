@@ -1,7 +1,7 @@
 using System.Net;
-using App.Error;
 using App.StartUp.Options;
 using App.StartUp.Registry;
+using CarboxylicBoron;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authorization.Policy;
 using Microsoft.AspNetCore.Mvc;
@@ -38,7 +38,7 @@ public class AuthorizationResultTransformer(IOptions<ErrorPortalOption> ep, IOpt
           if (ep.Value.Enabled)
           {
             p.Type =
-              $"{ep.Value.Scheme}://{ep.Value.Host}/docs/{ap.Value.Landscape}/{ap.Value.Platform}/{ap.Value.Service}/{ap.Value.Module}/{problem.Version}/{problem.Id}";
+              $"{ep.Value.Scheme}://{ep.Value.Host}/docs/{ap.Value.Landscape}/{ap.Value.Platform}/{ap.Value.Service}/{ap.Value.Module}/{problem.Namespace}/{problem.Id}";
           }
           p.Status = (int)HttpStatusCode.Forbidden;
           p.Extensions.Add(new KeyValuePair<string, object?>("traceId", httpContext.TraceIdentifier));

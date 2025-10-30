@@ -3,7 +3,7 @@ using App.Modules.System;
 using App.StartUp.Options.Auth;
 using App.StartUp.Registry;
 using App.Utility;
-using CSharp_Result;
+using CarboxylicLithium;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using StackExchange.Redis.Extensions.Core.Abstractions;

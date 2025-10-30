@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Text.Json.Serialization;
+using CarboxylicBoron;
 using Humanizer;
 using NJsonSchema.Annotations;
 
@@ -21,7 +22,7 @@ public class FileTooLarge : IDomainProblem
 
   [JsonIgnore, JsonSchemaIgnore] public string Title { get; } = "Invalid File Extension";
 
-  [JsonIgnore, JsonSchemaIgnore] public string Version { get; } = "v1";
+  [JsonIgnore, JsonSchemaIgnore] public string Namespace { get; } = "v1";
 
   [JsonIgnore, JsonSchemaIgnore] public string Detail { get; } = string.Empty;
 

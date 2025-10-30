@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using App.Modules.Common;
+using CarboxylicBoron;
 using Newtonsoft.Json;
 
 namespace App.Error.V1;
@@ -18,7 +19,7 @@ public class UnknownFileType : IDomainProblem
   [JsonIgnore]
   public string Title { get; } = "Unknown File Type";
   [JsonIgnore]
-  public string Version { get; } = "v1";
+  public string Namespace { get; } = "v1";
   [JsonIgnore]
   public string Detail { get; } = string.Empty;
 }

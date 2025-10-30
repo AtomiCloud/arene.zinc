@@ -2,6 +2,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 using App.Modules.Common;
+using CarboxylicBoron;
 using NJsonSchema.Annotations;
 
 namespace App.Error.V1;
@@ -22,7 +23,7 @@ internal class ValidationError : IDomainProblem
 
   [JsonIgnore] public string Id { get; } = "validation_error";
   [JsonIgnore] public string Title { get; } = "Validation Error";
-  [JsonIgnore] public string Version { get; } = "v1";
+  [JsonIgnore] public string Namespace { get; } = "v1";
   [JsonIgnore] public string Detail { get; } = string.Empty;
 
   [Description(

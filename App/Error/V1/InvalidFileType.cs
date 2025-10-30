@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Text.Json.Serialization;
+using CarboxylicBoron;
 using NJsonSchema.Annotations;
 
 namespace App.Error.V1;
@@ -20,7 +21,7 @@ public class InvalidFileType : IDomainProblem
 
   [JsonIgnore, JsonSchemaIgnore] public string Title { get; } = "Invalid File Type";
 
-  [JsonIgnore, JsonSchemaIgnore] public string Version { get; } = "v1";
+  [JsonIgnore, JsonSchemaIgnore] public string Namespace { get; } = "v1";
 
   [JsonIgnore, JsonSchemaIgnore] public string Detail { get; } = string.Empty;
 

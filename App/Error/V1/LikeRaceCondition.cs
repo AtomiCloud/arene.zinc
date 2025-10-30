@@ -2,6 +2,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 using App.Modules.Common;
+using CarboxylicBoron;
 using NJsonSchema.Annotations;
 
 namespace App.Error.V1;
@@ -24,7 +25,7 @@ internal class LikeRaceConditionError : IDomainProblem
 
   [JsonIgnore, JsonSchemaIgnore] public string Id { get; } = "like_race_condition";
   [JsonIgnore, JsonSchemaIgnore] public string Title { get; } = "Like Race Condition";
-  [JsonIgnore, JsonSchemaIgnore] public string Version { get; } = "v1";
+  [JsonIgnore, JsonSchemaIgnore] public string Namespace { get; } = "v1";
   [JsonIgnore, JsonSchemaIgnore] public string Detail { get; } = string.Empty;
 
   [Description("Type of Resource that like have race condition. Can be either 'template', 'plugin' or 'processor'")]

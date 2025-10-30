@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using CarboxylicBoron;
 using Newtonsoft.Json;
 using NJsonSchema.Annotations;
 
@@ -22,7 +23,7 @@ public class MultipleEntityNotFound : IDomainProblem
 
   [JsonIgnore, JsonSchemaIgnore] public string Title { get; } = "Multiple Entity Not Found";
 
-  [JsonIgnore, JsonSchemaIgnore] public string Version { get; } = "v1";
+  [JsonIgnore, JsonSchemaIgnore] public string Namespace { get; } = "v1";
 
   [JsonIgnore, JsonSchemaIgnore] public string Detail { get; } = string.Empty;
 

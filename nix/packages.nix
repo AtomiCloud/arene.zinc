@@ -30,6 +30,7 @@ let
           bun
           git
           infisical
+          xmlstarlet
 
           treefmt
           gitlint

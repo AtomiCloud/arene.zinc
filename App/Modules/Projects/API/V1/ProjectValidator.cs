@@ -31,7 +31,7 @@ public class ProjectSearchQueryValidator : AbstractValidator<SearchProjectQuery>
 {
   public ProjectSearchQueryValidator()
   {
-    
+
     this.RuleFor(x => x.Name)
       .MinimumLength(1)
       .Unless(x => x.Name == null);

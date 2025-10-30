@@ -9,6 +9,16 @@ includes:
   tear: tasks/Taskfile.tear.yaml
   stop: tasks/Taskfile.stop.yaml
   util: tasks/Taskfile.util.yaml
+  unit:
+    taskfile: tasks/Taskfile.test.yaml
+    vars:
+      TEST_DIR: UnitTest
+      TARGET: Domain
+  int:
+    taskfile: tasks/Taskfile.test.yaml
+    vars:
+      TEST_DIR: IntTest
+      TARGET: Domain
 
 env:
   DOTNET_SYSTEM_GLOBALIZATION_INVARIANT: '0'

@@ -2,11 +2,11 @@
   "version": 1,
   "dependencies": {
     "net8.0": {
-      "CSharp-Result": {
+      "AtomiCloud.Result": {
         "type": "Direct",
-        "requested": "[0.2.0, )",
-        "resolved": "0.2.0",
-        "contentHash": "VkmXrucUsU2nfzhy2Y44ufmc8jkiZ0AM+0LVTZBV2HmbzLRDk2oFfS34SfxTrUyy027zs1ipEqVINe1mE9PX2g=="
+        "requested": "[1.12.1, )",
+        "resolved": "1.12.1",
+        "contentHash": "dS3yeOCKA9WvNlXYdDtNjn5UyeVJ4e0zWnB/04lxKgQzBJcC6/vnCzzUYa/ndiYj/i543Q4iAk6T0aejbKm2rA=="
       },
       "Microsoft.Extensions.Logging": {
         "type": "Direct",

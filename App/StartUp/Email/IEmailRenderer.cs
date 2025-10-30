@@ -1,8 +1,8 @@
-using CSharp_Result;
+using CarboxylicLithium;
 
 namespace App.StartUp.Email;
 
 public interface IEmailRenderer
 {
-    Task<Result<string>> RenderEmail(string id, object variables);
+  Task<Result<string>> RenderEmail(string id, object variables);
 }

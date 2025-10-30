@@ -7,7 +7,7 @@ public record SearchProjectQuery(
   int? Skip);
 
 // REQ
-public record CreateProjectReq(string Name, bool Open); 
+public record CreateProjectReq(string Name, bool Open);
 
 public record UpdateProjectReq(string Name, bool Open);
 

@@ -29,12 +29,12 @@ public static class UserMapper
   public static UserSearch ToDomain(this SearchUserQuery query) =>
     new()
     {
-      Id = query.Id, 
+      Id = query.Id,
       Username = query.Username,
       Email = query.Email,
       EmailVerified = query.EmailVerified,
       Active = query.Active,
-      Limit = query.Limit ?? 20, 
+      Limit = query.Limit ?? 20,
       Skip = query.Skip ?? 0,
     };
 }

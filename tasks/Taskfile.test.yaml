@@ -1,0 +1,17 @@
+version: '3'
+
+tasks:
+  default:
+    desc: '{{.TEST_DIR}} Test the library'
+    cmds:
+      - dotnet test {{.TEST_DIR}} {{.CLI_ARGS}}
+
+  watch:
+    desc: '{{.TEST_DIR}} Test the library and watch for changes'
+    cmds:
+      - dotnet watch test --project {{.TEST_DIR}} {{.CLI_ARGS}}
+
+  cover:
+    desc: '{{.TEST_DIR}} Test the library and show coverage'
+    cmds:
+      - ./scripts/local/cover.sh {{.TEST_DIR}} {{.TARGET}} {{.CLI_ARGS}}

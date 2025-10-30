@@ -5,9 +5,9 @@ public record SubscriptionTypeSearch
   public string? Name { get; init; }
   public string? Desc { get; init; }
   public Guid? Guid { get; init; }
-  
+
   public int Limit { get; init; }
-  
+
   public int Skip { get; init; }
 }
 

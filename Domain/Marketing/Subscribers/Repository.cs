@@ -1,4 +1,4 @@
-using CSharp_Result;
+using CarboxylicLithium;
 
 namespace Domain.Marketing.Subscribers;
 
@@ -9,6 +9,6 @@ public interface ISubscriberRepository
   Task<Result<Subscriber?>> Get(Guid projectId, string email);
 
   Task<Result<Unit?>> RecordSubscription(Guid projectId, string email, SubscriptionEvent subscription);
-  
+
   Task<Result<Unit?>> Delete(Guid projectId, string email);
 }

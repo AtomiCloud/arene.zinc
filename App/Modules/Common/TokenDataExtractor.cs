@@ -1,7 +1,7 @@
 using System.Security.Claims;
-using App.Error;
 using App.Error.V1;
-using CSharp_Result;
+using CarboxylicBoron;
+using CarboxylicLithium;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Protocols;
@@ -74,7 +74,7 @@ public class TokenDataExtractor(
         if (emailVerifiedClaim == null) fields.Add("email_verified");
         if (usernameClaim == null) fields.Add("username");
         logger.LogError("Missing fields in token: {@Fields}", fields);
-        return new DomainProblemException(new InvalidUserToken("Fields missing", "ID", [..fields]));
+        return new DomainProblemException(new InvalidUserToken("Fields missing", "ID", [.. fields]));
       }
 
       // Validate that both tokens have the same subject

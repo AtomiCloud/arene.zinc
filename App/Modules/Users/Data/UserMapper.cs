@@ -15,7 +15,7 @@ public static class UserMapper
 
   public static UserPrincipal ToPrincipal(this UserData data) => new()
   {
-    Id = data.Id, 
+    Id = data.Id,
     Record = data.ToRecord(),
   };
 

@@ -13,9 +13,10 @@ public static class ProjectMapper
 
   public static Project ToDomain(this ProjectData data, uint count) => new()
   {
-    Principal = data.ToPrincipal(), SubscriberCount = count,
+    Principal = data.ToPrincipal(),
+    SubscriberCount = count,
   };
-  
+
   public static ProjectData ToData(this ProjectRecord record) => new() { Open = record.Open, Name = record.Name, };
 
   public static ProjectData Update(this ProjectData data, ProjectRecord record)

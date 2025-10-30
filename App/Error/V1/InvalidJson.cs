@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using CarboxylicBoron;
 using Newtonsoft.Json;
 using NJsonSchema.Annotations;
 
@@ -20,7 +21,7 @@ public class InvalidJson : IDomainProblem
 
   [JsonIgnore, JsonSchemaIgnore] public string Title { get; } = "Invalid JSON";
 
-  [JsonIgnore, JsonSchemaIgnore] public string Version { get; } = "v1";
+  [JsonIgnore, JsonSchemaIgnore] public string Namespace { get; } = "v1";
 
   [JsonIgnore, JsonSchemaIgnore] public string Detail { get; } = string.Empty;
 

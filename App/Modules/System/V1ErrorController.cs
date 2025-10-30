@@ -1,11 +1,11 @@
 using System.Net;
 using System.Reflection;
 using System.Text.Json;
-using App.Error;
 using App.Error.V1;
 using App.Modules.Common;
 using App.StartUp.Services.Auth;
 using Asp.Versioning;
+using CarboxylicBoron;
 using Microsoft.AspNetCore.Mvc;
 using NJsonSchema;
 
@@ -53,6 +53,6 @@ public class V1ErrorController : AtomiControllerBase
 
     var s = JsonSerializer.Deserialize<object>(schema,
       new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-    return this.Ok(new ErrorInfo(s!, problem.Id, problem.Title, problem.Version));
+    return this.Ok(new ErrorInfo(s!, problem.Id, problem.Title, problem.Namespace));
   }
 }

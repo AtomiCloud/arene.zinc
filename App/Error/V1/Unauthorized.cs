@@ -2,6 +2,7 @@ using System.ComponentModel;
 using System.Text.Json.Serialization;
 using App.Error.Common;
 using App.Modules.Common;
+using CarboxylicBoron;
 using NJsonSchema.Annotations;
 
 namespace App.Error.V1;
@@ -29,7 +30,7 @@ public class Unauthorized : IDomainProblem
 
 
   [JsonIgnore, JsonSchemaIgnore]
-  public string Version { get; } = "v1";
+  public string Namespace { get; } = "v1";
 
 
   [JsonIgnore, JsonSchemaIgnore]

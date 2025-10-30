@@ -2,7 +2,7 @@ using System.Net;
 using System.Net.Mail;
 using App.StartUp.Options;
 using App.Utility;
-using CSharp_Result;
+using CarboxylicLithium;
 
 namespace App.StartUp.Smtp;
 
@@ -20,10 +20,10 @@ public class NativeSmtpClient(
       using var client = new SmtpClient(config.Host, config.Port);
       client.EnableSsl = config.EnableSsl;
       client.UseDefaultCredentials = config.UseDefaultCredentials;
-      
+
       if (!config.UseDefaultCredentials && !string.IsNullOrEmpty(config.Username))
         client.Credentials = new NetworkCredential(config.Username, config.Password);
-      
+
       client.Timeout = config.Timeout;
 
       var fromEmail = !string.IsNullOrWhiteSpace(email.FromEmail) ? email.FromEmail : config.FromEmail;
@@ -36,11 +36,11 @@ public class NativeSmtpClient(
       message.IsBodyHtml = email.IsHtml;
 
       message.To.Add(email.To);
-      
+
       logger.LogInformation("Sending email via {Mailbox} to {To} with subject '{Subject}'", this.Mailbox, email.To, email.Subject);
       await client.SendMailAsync(message, cancellationToken);
       logger.LogInformation("Email sent successfully via {Mailbox} to {To}", this.Mailbox, email.To);
-      
+
       return new Unit();
     }
     catch (Exception ex)

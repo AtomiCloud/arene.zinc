@@ -1,8 +1,8 @@
-using App.Error;
 using App.Modules.Common;
 using App.StartUp.Options;
 using App.StartUp.Registry;
 using App.Utility;
+using CarboxylicBoron;
 
 namespace App.StartUp.Services;
 
@@ -20,7 +20,7 @@ public static class ProblemDetailsService
         if (ep.Enabled)
         {
           context.ProblemDetails.Type =
-            $"{ep.Scheme}://{ep.Host}/docs/{ap.Landscape}/{ap.Platform}/{ap.Service}/{ap.Module}/{problem.Version}/{problem.Id}";
+            $"{ep.Scheme}://{ep.Host}/docs/{ap.Landscape}/{ap.Platform}/{ap.Service}/{ap.Module}/{problem.Namespace}/{problem.Id}";
         }
         context.ProblemDetails.Extensions["data"] = problem;
       });
