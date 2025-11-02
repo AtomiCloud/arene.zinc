@@ -18,7 +18,9 @@ includes:
     taskfile: tasks/Taskfile.test.yaml
     vars:
       TEST_DIR: IntTest
-      TARGET: Domain
+      TARGET: Domain,App
+    env:
+      LANDSCAPE: tauros
 
 env:
   DOTNET_SYSTEM_GLOBALIZATION_INVARIANT: '0'

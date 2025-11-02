@@ -16,7 +16,21 @@ public class ProjectRepository(MainDbContext db, ILogger<ProjectRepository> logg
     try
     {
       var query = db.Projects.AsQueryable();
-      if (search.Name != null) query = query.Where(x => EF.Functions.ILike(x.Name, $"%{search.Name}%"));
+
+      // Use Contains for in-memory database, ILike for PostgreSQL
+      if (search.Name != null)
+      {
+        var isInMemory = db.Database.ProviderName == "Microsoft.EntityFrameworkCore.InMemory";
+        if (isInMemory)
+        {
+          query = query.Where(x => x.Name.Contains(search.Name, StringComparison.OrdinalIgnoreCase));
+        }
+        else
+        {
+          query = query.Where(x => EF.Functions.ILike(x.Name, $"%{search.Name}%"));
+        }
+      }
+
       if (search.Id != null) query = query.Where(x => x.Id == search.Id);
       return await query
         .Skip(search.Skip)

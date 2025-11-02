@@ -42,25 +42,38 @@ echo "✅ Coverage processing complete!"
 
 echo ""
 
+# Get overall coverage first using grep and sed
+overall_line_rate=$(grep -m 1 '<coverage' "coverage/$test_dir/coverage.cobertura.xml" | sed -n 's/.*line-rate="\([^"]*\)".*/\1/p')
+overall_branch_rate=$(grep -m 1 '<coverage' "coverage/$test_dir/coverage.cobertura.xml" | sed -n 's/.*branch-rate="\([^"]*\)".*/\1/p')
+overall_line_pct=$(echo "$overall_line_rate * 100" | bc -l | awk '{printf "%.2f", $0}')
+overall_branch_pct=$(echo "$overall_branch_rate * 100" | bc -l | awk '{printf "%.2f", $0}')
+
+echo "📊 Overall Coverage: $overall_line_pct% lines, $overall_branch_pct% branches"
+echo ""
+
 # Split target by comma and process each package
 IFS=',' read -ra packages <<<"$target"
 for package in "${packages[@]}"; do
   # Trim whitespace
   package=$(echo "$package" | xargs)
 
-  # Get coverage for the package
-  package_coverage=$(xmlstarlet sel -t -v "//package[@name='$package']/@line-rate" "coverage/$test_dir/coverage.cobertura.xml")
+  # Get coverage for the package using grep and sed
+  package_line=$(grep "package name=\"$package\"" "coverage/$test_dir/coverage.cobertura.xml")
 
   # Check if package exists in coverage report
-  if [ -z "$package_coverage" ]; then
-    echo "⚠️ Warning: Package '$package' not found in coverage report"
+  if [ -z "$package_line" ]; then
+    echo "⚠️  Warning: Package '$package' not found in coverage report"
     continue
   fi
 
-  # Convert coverage to percentage
-  package_percentage=$(echo "$package_coverage * 100" | bc -l | awk '{printf "%.2f", $0}')
+  package_coverage=$(echo "$package_line" | sed -n 's/.*line-rate="\([^"]*\)".*/\1/p')
+  package_branch=$(echo "$package_line" | sed -n 's/.*branch-rate="\([^"]*\)".*/\1/p')
 
-  echo "🧪 Coverage for $package: $package_percentage%"
+  # Convert coverage to percentage
+  package_line_pct=$(echo "$package_coverage * 100" | bc -l | awk '{printf "%.2f", $0}')
+  package_branch_pct=$(echo "$package_branch * 100" | bc -l | awk '{printf "%.2f", $0}')
+
+  echo "🧪 Coverage for $package: $package_line_pct% lines, $package_branch_pct% branches"
 done
 
 echo ""

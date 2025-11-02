@@ -44,6 +44,10 @@ pls email:dev          # Preview email templates in dev mode
 pls email:build        # Build email templates to HTML
 
 # Testing
+pls unit                                   # Run unit tests
+pls unit:cover                             # Run unit tests with coverage (Domain only)
+pls int                                    # Run integration tests (LANDSCAPE=tauros)
+pls int:cover                              # Run integration tests with coverage (Domain + App)
 pls exec -- dotnet test                    # Run all tests
 pls exec -- dotnet test --filter "FullyQualifiedName~ProjectTests"  # Run specific tests
 
@@ -254,12 +258,25 @@ All runtime config in YAML files under `App/Config/`:
 
 6. **Edge Cases**: Always test nulls, empty collections, boundary values
 
+### Integration Testing:
+
+- **Landscape**: `tauros` - automatically set by `pls int` task
+- **Database**: In-memory EF Core database (bypasses PostgreSQL)
+- **Configuration**: `App/Config/settings.tauros.yaml` with disabled OTEL, auth, and external services
+- **Test Factory**: `IntTest/Infrastructure/TestWebApplicationFactory.cs` creates custom WebApplication
+- **Database Cleanup**: Use `IAsyncLifetime` to clear database between tests
+- **Provider-Aware Queries**: Repository methods detect in-memory vs PostgreSQL provider
+- **JSONB Handling**: Automatically ignored for in-memory database via reflection in `MainDbContext`
+
 ### Run Tests:
 
 ```bash
+pls unit                                                         # Run unit tests
+pls unit:cover                                                   # Run unit tests with coverage (Domain only)
+pls int                                                          # Run integration tests
+pls int:cover                                                    # Run integration tests with coverage (Domain + App)
 pls exec -- dotnet test                                          # All tests
 pls exec -- dotnet test --filter "FullyQualifiedName~ServiceTests"  # Specific class
-pls exec -- dotnet test /p:CollectCoverage=true                  # With coverage
 ```
 
 **Example Tests**: See `UnitTest/Domain/Projects/ServiceTests.cs` and `UnitTest/Domain/Marketing/Subscribers/ServiceTests.cs`
@@ -294,6 +311,12 @@ Follow `.editorconfig`:
 - camelCase for locals, parameters
 - Prefer `var` and explicit braces
 - Organize usings (System first, then others alphabetically)
+
+## Scripting Preferences
+
+- **Never use Python** - Always use shell tools (grep, awk, sed, etc.) for scripting and data processing
+- Use zsh for interactive shell commands
+- Prefer native Unix tools over external scripting languages
 
 ## Commits
 

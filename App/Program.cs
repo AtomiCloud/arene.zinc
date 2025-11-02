@@ -28,3 +28,6 @@ var server = app.Services.GetService<Server>();
 var s = server ?? throw new ApplicationException("Server not found");
 
 s.Start(landscape, args);
+
+// Make Program accessible to integration tests
+public partial class Program { }

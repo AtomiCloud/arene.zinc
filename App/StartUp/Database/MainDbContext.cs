@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations.Schema;
 using App.Modules.Projects.Data;
 using App.Modules.Subscribers.Data;
 using App.Modules.SubscriptionTypes.Data;
@@ -6,12 +7,16 @@ using App.StartUp.Options;
 using App.StartUp.Services;
 using EntityFramework.Exceptions.PostgreSQL;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Options;
 
 namespace App.StartUp.Database;
 
-public class MainDbContext(IOptionsMonitor<Dictionary<string, DatabaseOption>> options, ILoggerFactory factory)
-  : DbContext
+public class MainDbContext(
+  IOptionsMonitor<Dictionary<string, DatabaseOption>> options,
+  ILoggerFactory factory,
+  DbContextOptions<MainDbContext>? contextOptions = null)
+  : DbContext(contextOptions ?? new DbContextOptions<MainDbContext>())
 {
   public const string Key = "MAIN";
 
@@ -25,10 +30,16 @@ public class MainDbContext(IOptionsMonitor<Dictionary<string, DatabaseOption>> o
 
   protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
   {
-    optionsBuilder
-      .UseLoggerFactory(factory)
-      .AddPostgres(options.CurrentValue, Key)
-      .UseExceptionProcessor();
+    // Skip PostgreSQL configuration if using in-memory database (for tests)
+    // Tests should set Database property to "__IN_MEMORY_TEST__"
+    var dbOpts = options.CurrentValue;
+    if (dbOpts.ContainsKey(Key) && dbOpts[Key].Database != "__IN_MEMORY_TEST__")
+    {
+      optionsBuilder
+        .UseLoggerFactory(factory)
+        .AddPostgres(options.CurrentValue, Key)
+        .UseExceptionProcessor();
+    }
   }
 
   protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -90,5 +101,24 @@ public class MainDbContext(IOptionsMonitor<Dictionary<string, DatabaseOption>> o
       .HasForeignKey(x => new { x.ProjectId, x.SubscriptionTypeId })
       .HasPrincipalKey(x => new { x.ProjectId, x.Id })
       .OnDelete(DeleteBehavior.Cascade);
+
+    // Generic handling: Ignore all JSONB properties when using in-memory database
+    if (Database.ProviderName == "Microsoft.EntityFrameworkCore.InMemory")
+    {
+      foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+      {
+        foreach (var property in entityType.ClrType.GetProperties())
+        {
+          var columnAttr = property.GetCustomAttributes(typeof(ColumnAttribute), false)
+            .Cast<ColumnAttribute>()
+            .FirstOrDefault();
+
+          if (columnAttr?.TypeName == "jsonb")
+          {
+            modelBuilder.Entity(entityType.ClrType).Ignore(property.Name);
+          }
+        }
+      }
+    }
   }
 }

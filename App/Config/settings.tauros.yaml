@@ -1,43 +1,92 @@
 $schema: ./schema.json
-# Native
+# Test configuration for integration tests
+AllowedHosts: '*'
+Kestrel:
+  Endpoints:
+    Http:
+      Url: http://+:9004
+
 App:
   Landscape: tauros
-  EnableSwagger: true
+  Platform: arene
+  Service: zinc
+  Module: api
+  Mode: Server
+  DefaultCors: AllowAll
+  Version: 1.0.0
+  EnableSwagger: false
   GenerateConfig: false
-Swagger:
-  Title: Tauros Arene Zinc API
-# OTEL
+
+ErrorPortal:
+  Enabled: false
+  EnableExceptionResponse: true
+
+Cors:
+  - Name: AllowAll
+    PreflightMaxAge: 600
+    AllowedOrigins: ['*']
+    AllowedMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+    AllowedHeaders: ['*']
+    AllowCredentials: false
+
+# Disable OTEL for tests
 Logs:
   Exporter:
     Console:
       Enabled: false
     Otlp:
       Enabled: false
+
 Trace:
+  Instrument:
+    EFCore:
+      Enabled: false
+    AspNetCore:
+      Enabled: false
+    HttpClient:
+      Enabled: false
+    SqlClient:
+      Enabled: false
   Exporter:
+    Console:
+      Enabled: false
     Otlp:
       Enabled: false
 
-Metrics:
+Metric:
+  Meter:
+    AspNetCore:
+      Enabled: false
+    HttpClient:
+      Enabled: false
+    System:
+      Enabled: false
   Exporter:
+    Console:
+      Enabled: false
     Otlp:
       Enabled: false
 
-# Infra-based
+# Auth - minimal config for tests
+Auth:
+  Enabled: false
+  Settings:
+    Endpoint: http://localhost
+    AppId: test-app
+    AppSecret: test-secret
+    Policies: {}
+    Scopes: []
+
+# Database - will be overridden by in-memory DB in tests
 Database:
   MAIN:
-    Host: zinc-main-database
-    User: admin
-    Password: supersecret
+    ConnectionString: 'InMemory'
     AutoMigrate: false
+    MaxRetries: 0
+    CommandTimeout: 30
 
+# No external services in tests
+BlockStorage: {}
 Cache: {}
-BlockStorage:
-  MAIN:
-    Port: 9000
-    Scheme: http
-    Policy: Private
-    UseSSL: false
-    EnsureBucketCreation: true
-# external
 HttpClient: {}
+Smtp: {}
