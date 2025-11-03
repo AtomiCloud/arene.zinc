@@ -1,9 +1,9 @@
 ---
-name: testing
-description: Write unit tests for Zinc ASP.NET Core 8 API using xUnit, FluentAssertions, and Moq with behavior-driven naming
+name: unit-testing
+description: Write isolated unit tests for Zinc ASP.NET Core 8 API using xUnit, FluentAssertions, and Moq to test domain logic with mocked dependencies
 ---
 
-# Testing Skill
+# Unit Testing Skill
 
 Use this skill when writing unit tests for the Zinc ASP.NET Core 8 API project.
 
@@ -18,6 +18,15 @@ Use this skill when writing unit tests for the Zinc ASP.NET Core 8 API project.
 - **FluentAssertions** for readable assertions
 - **Moq** for mocking dependencies
 - **Result Monad Pattern** from `CarboxylicLithium`
+
+## Unit Testing Philosophy
+
+Unit tests focus on **isolating and testing individual functions/methods in the Domain layer**:
+
+- **Isolation**: Mock all external dependencies (repositories, services, transaction managers)
+- **Domain Focus**: Test domain services, models, and business logic
+- **Fast Execution**: No database, no HTTP calls, no external systems
+- **Single Responsibility**: Each test verifies one specific behavior of one method
 
 ## Core Testing Principles
 
@@ -101,7 +110,6 @@ See [examples.md](examples.md#edge-case-template) for edge case test template.
 | Domain Services | 100%            | Critical |
 | Domain Models   | 100%            | Critical |
 | Repositories    | 90%+            | High     |
-| Controllers     | 80%+            | High     |
 | Validators      | 100%            | High     |
 
 ## Critical Rules for Test Data
@@ -300,12 +308,6 @@ pls unit:watch
 # Run unit tests with coverage
 pls unit:cover
 
-# Run integration tests
-pls int
-
-# Run integration tests with coverage
-pls int:cover
-
 # Pass additional arguments
 pls unit -- --filter "FullyQualifiedName~ServiceTests"
 pls unit -- --filter "FullyQualifiedName~Create_WithValidRecord"
@@ -351,5 +353,6 @@ See these files for complete examples:
 1. **Read** [examples.md](examples.md) for code templates
 2. **Reference** [reference.md](reference.md) for official documentation
 3. **Follow** the AAA pattern and BDD naming convention
-4. **Use** static, deterministic test data only
-5. **Test** with `pls unit` before submitting
+4. **Mock** all dependencies (repositories, services, transaction managers)
+5. **Use** static, deterministic test data only
+6. **Test** with `pls unit` before submitting

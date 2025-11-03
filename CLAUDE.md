@@ -214,9 +214,16 @@ All runtime config in YAML files under `App/Config/`:
 
 **Framework**: xUnit with FluentAssertions and Moq for mocking
 
-**Comprehensive Guidelines**: See `UnitTest/README.md` for complete testing standards
+**Two Types of Testing**:
 
-### Key Testing Principles:
+- **Unit Testing**: Isolated testing of domain logic with mocked dependencies (use `unit-testing` skill)
+- **Integration Testing**: End-to-end scenario testing through API endpoints (use `integration-testing` skill)
+
+### Unit Testing (Domain Layer)
+
+**Focus**: Isolated testing of individual functions in the Domain layer with all dependencies mocked.
+
+**Key Principles**:
 
 1. **Mirror Domain Structure**: Test files mirror domain/module organization
 
@@ -244,29 +251,44 @@ All runtime config in YAML files under `App/Config/`:
    actual.ValueOrDefault().Name.Should().Be("Test");
    ```
 
-4. **Test Naming**: `{MethodName}_{Scenario}_{ExpectedBehavior}`
+4. **Test Naming**: `{MethodName}_{Scenario}_{ShouldExpectedBehavior}`
 
-   - Example: `Create_WithValidRecord_ReturnsProjectPrincipal`
+   - Example: `Create_WithValidRecord_ShouldReturnProjectPrincipal`
 
 5. **Coverage Targets**:
-
    - Domain Services: 100%
    - Domain Models: 100%
    - Repositories: 90%+
-   - Controllers: 80%+
    - Validators: 100%
 
-6. **Edge Cases**: Always test nulls, empty collections, boundary values
+### Integration Testing (Full Stack)
 
-### Integration Testing:
+**Focus**: End-to-end user flows and business scenarios through real API endpoints.
 
-- **Landscape**: `tauros` - automatically set by `pls int` task
-- **Database**: In-memory EF Core database (bypasses PostgreSQL)
-- **Configuration**: `App/Config/settings.tauros.yaml` with disabled OTEL, auth, and external services
-- **Test Factory**: `IntTest/Infrastructure/TestWebApplicationFactory.cs` creates custom WebApplication
-- **Database Cleanup**: Use `IAsyncLifetime` to clear database between tests
-- **Provider-Aware Queries**: Repository methods detect in-memory vs PostgreSQL provider
-- **JSONB Handling**: Automatically ignored for in-memory database via reflection in `MainDbContext`
+**Key Principles**:
+
+1. **Scenario-Based**: Test complete user journeys, not isolated endpoints
+
+   - Example: User registers → verifies email → logs in → updates profile
+
+2. **Multi-Step Flows**: One test can use multiple endpoints together
+
+   - Create → Get → Update → Delete
+
+3. **Business Edge Cases**: Test real-world scenarios from business requirements
+
+   - Validation errors, conflicts, permissions, state transitions
+
+4. **Test Naming**: `{ScenarioName}_{Context}_{ShouldExpectedOutcome}`
+
+   - Example: `CreateProject_WithValidData_ShouldReturnCreatedProjectAndBeRetrievable`
+
+5. **Environment**:
+   - **Landscape**: `tauros` - automatically set by `pls int` task
+   - **Database**: In-memory EF Core database (bypasses PostgreSQL)
+   - **Configuration**: `App/Config/settings.tauros.yaml` with disabled OTEL, auth, and external services
+   - **Test Factory**: `IntTest/Infrastructure/TestWebApplicationFactory.cs` creates custom WebApplication
+   - **Database Cleanup**: Use `IAsyncLifetime` to clear database between tests
 
 ### Run Tests:
 
@@ -279,7 +301,10 @@ pls exec -- dotnet test                                          # All tests
 pls exec -- dotnet test --filter "FullyQualifiedName~ServiceTests"  # Specific class
 ```
 
-**Example Tests**: See `UnitTest/Domain/Projects/ServiceTests.cs` and `UnitTest/Domain/Marketing/Subscribers/ServiceTests.cs`
+**Example Tests**:
+
+- Unit: `UnitTest/Domain/Projects/ServiceTests.cs`, `UnitTest/Domain/Marketing/Subscribers/ServiceTests.cs`
+- Integration: `IntTest/Scenarios/Projects/ProjectManagementTests.cs`
 
 ## Transactions
 

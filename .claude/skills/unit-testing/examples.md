@@ -1,6 +1,6 @@
-# Testing Examples
+# Unit Testing Examples
 
-Code examples, templates, and patterns for writing tests in the Zinc project.
+Code examples, templates, and patterns for writing unit tests in the Zinc project.
 
 ## Table of Contents
 
