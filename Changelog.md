@@ -1,3 +1,10 @@
+## [1.1.0](https://github.com/AtomiCloud/arene.zinc/compare/v1.0.0...v1.1.0) (2025-11-03)
+
+
+### ✨ Features ✨
+
+* improve skills ([9ebb8d6](https://github.com/AtomiCloud/arene.zinc/commit/9ebb8d688f916be8a27250e84150cf7348342b1b))
+
 ## 1.0.0 (2025-11-02)
 
 
