@@ -27,23 +27,7 @@ dependencies:
     alias: bromine
     repository: oci://ghcr.io/atomicloud/sulfoxide.bromine
 
-  # Databases
-  - name: postgresql
-    version: 15.5.16
-    repository: oci://registry-1.docker.io/bitnamicharts
-    alias: maindb
-    condition: maindb.enable
-
-  # Blob Storage
-  - name: minio
-    repository: oci://registry-1.docker.io/bitnamicharts
-    version: 14.6.20
-    alias: mainstorage
-    condition: mainstorage.enable
-
-  # Caches
-  - name: dragonfly
-    repository: oci://ghcr.io/dragonflydb/dragonfly/helm
-    version: v1.20.1
-    alias: maincache
-    condition: maincache.enable
+  # Infrastructure (postgres, cache, storage) now deployed as CRDs via templates/
+  # - CloudNativePG Cluster for PostgreSQL (templates/maindb-cluster.yaml)
+  # - Dragonfly CRD for cache (templates/maincache-dragonfly.yaml)
+  # - MinIO Tenant for storage (templates/mainstorage-tenant.yaml)

@@ -1,87 +1,35 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
-file="$1"
+source "$(dirname "$0")/load-dev-config.sh"
 
-# shellcheck disable=SC2124
-dev=${@:2}
+echo "🚀 Starting $SERVICE @ $LANDSCAPE/$PLATFORM (mode: $MODE)"
 
-set -eou pipefail
+# 1. Ensure k3d cluster exists
+echo "📦 Ensuring k3d cluster exists..."
+"$(dirname "$0")/create-k3d-cluster.sh"
 
-[ "$file" = '' ] && file="./config/dev.yaml"
+# 2. Regenerate kubeconfig
+echo "🔧 Regenerating kubeconfig..."
+"$(dirname "$0")/regenerate-kubeconfig.sh"
 
-landscape="$(yq -r '.landscape' "$file")"
-platform="$(yq -r '.platform' "$file")"
-service="$(yq -r '.service' "$file")"
-port="$(yq -r '.port' "$file")"
-fast="$(yq -r '.fast' "$file")"
-startCluster="$(yq -r '.startCluster' "$file")"
-mode="$(yq -r '.type' "$file")"
+# 3. Switch to cluster context
+echo "🔄 Switching to context: k3d-$LANDSCAPE"
+kubectl config use-context "k3d-$LANDSCAPE"
 
-if [ "$fast" = 'true' ]; then
-  kubectx "k3d-$landscape"
+# 4. Garden handles deployment (namespaces, operators, infrastructure)
+if [ "$MODE" = "local" ]; then
+  export DOTNET_WATCH_RESTART_ON_RUDE_EDIT="true"
+  echo "🌱 Deploying infrastructure & starting API (http://localhost:9001)..."
+  echo ""
+  echo "⚠️  Local mode requires kubectl port-forwards in separate terminals:"
+  echo "   kubectl port-forward -n arene svc/zinc-root-chart-maindb-rw 5432:5432"
+  echo "   kubectl port-forward -n arene svc/zinc-root-chart-maincache 6379:6379"
+  echo "   kubectl port-forward -n arene svc/zinc-root-chart-mainstorage-hl 9000:9000"
+  echo ""
+  garden run zinc-api-local --env "$LANDSCAPE"
 else
-  if [ "$startCluster" = 'true' ]; then
-    ./scripts/local/create-k3d-cluster.sh
-    echo "🔃 Switching Context"
-    kubectx "k3d-$landscape"
-    echo "✅ Context switched"
-  else
-    kubectx
-  fi
-fi
-
-if [ "$fast" = 'false' ]; then
-  echo "🛠 Creating namespace '$platform'..."
-  kubectl create ns "$platform" || true
-  echo "✅ Namespace created"
-fi
-
-echo "🔃 Switching Namespace"
-kubens "$platform"
-echo "✅ Namespace switched"
-
-# tilt down
-stop_tilt() {
-  if [ "$fast" = 'false' ]; then
-    echo "🛑 Stopping tilt..."
-    tilt down
-  fi
-}
-
-if [ "$mode" = 'cluster' ]; then
-  cleanup() {
-    stop_tilt
-  }
-  trap cleanup EXIT
-  tilt up --port "$port"
-else
-  tilt up --port "$port" &
-
-  name="$platform-$service-dev-proxy"
-  target="pod/$name"
-  kubectl apply -f - <<EOF
-apiVersion: v1
-kind: Pod
-metadata:
-  name: $name
-spec:
-  containers:
-  - name: app
-    image: nginx:latest
-EOF
-  echo "⌛ Waiting for pod to be ready..."
-  kubectl wait --for=condition=ready "$target" --timeout="2m"
-  echo "✅ Pod is ready"
-
-  cleanup() {
-    if [ "$fast" = 'false' ]; then
-      echo "🛑 Deleting proxy pod..."
-      kubectl delete "$target"
-    fi
-    stop_tilt
-  }
-  trap cleanup EXIT
-  export LANDSCAPE="$landscape"
-  # shellcheck disable=SC2086
-  infisical run --env="$landscape" -- mirrord exec --context "k3d-$landscape" --target "$target" --fs-mode local -e -n "$platform" -- $dev
+  echo "🌱 Deploying infrastructure via Garden..."
+  garden deploy --env "$LANDSCAPE"
+  echo "✅ Deployment complete!"
 fi

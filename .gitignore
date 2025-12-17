@@ -687,3 +687,12 @@ Temporary Items
 **/.react-email/**
 **/node_modules/**
 **/App/Templates/Email/templates/**
+
+# Preview environment (don't commit!)
+.preview-branches
+infra/root_chart/values.absol-generated.yaml
+
+# Test results
+test-results/
+
+.garden

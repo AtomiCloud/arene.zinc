@@ -1,0 +1,82 @@
+apiVersion: garden.io/v2
+kind: Project
+name: zinc
+
+# Platform infrastructure (optional - for shared operators)
+# Uncomment when zinc-platform repo is available:
+# sources:
+#   - name: platform
+#     repositoryUrl: git@github.com:atomicloud/zinc-platform.git
+#     # Or use local path during development:
+#     # repositoryUrl: file://../zinc-platform
+
+# Environments
+environments:
+  # Lapras: Local development with hot reload
+  - name: lapras
+    defaultNamespace: arene
+    variables:
+      landscape: lapras
+      useProductionImages: false
+      enablePersistence: false
+      apiReplicas: 1
+
+      # Infrastructure: CRD-based (local k3d)
+      infrastructureType: crd
+
+      # Minimal resources for local dev
+      dbInstances: 1
+      cacheReplicas: 1
+      storageServers: 1
+
+  # Absol: Preview environment (ephemeral, for PR testing)
+  - name: absol
+    defaultNamespace: arene
+    variables:
+      landscape: absol
+      useProductionImages: true # Production images
+      enablePersistence: false # Ephemeral for preview
+      apiReplicas: 1 # Single replica for preview
+
+      # Infrastructure: CRD or External (toggle to test cloud config)
+      infrastructureType: crd # or "external" for Neon/Tigris branches
+
+      # Preview-appropriate resources
+      dbInstances: 1
+      cacheReplicas: 1
+      storageServers: 1
+
+  # Tauros: System integration testing (full E2E with K6)
+  - name: tauros
+    defaultNamespace: arene
+    variables:
+      landscape: tauros
+      useProductionImages: true # Production images
+      enablePersistence: false # Ephemeral for testing
+      apiReplicas: 2 # Test HA scenarios
+
+      # Infrastructure: CRD-based (real services for E2E)
+      infrastructureType: crd
+
+      # Test-appropriate resources
+      dbInstances: 1
+      cacheReplicas: 1
+      storageServers: 1
+
+# Providers
+providers:
+  - name: kubernetes
+    environments: [lapras, absol, tauros]
+    context: k3d-${var.landscape}
+    defaultHostname: ${var.landscape}.lvh.me
+    buildMode: local-docker
+    namespace: arene
+
+    # Set up kubectl context
+    setupIngressController: false # We use Traefik from k3d
+
+# Global variables
+variables:
+  platform: arene
+  service: zinc
+  layer: '2'

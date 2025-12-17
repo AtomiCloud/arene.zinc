@@ -40,14 +40,38 @@ migration:
   serviceTree:
     landscape: *landscape
 
-maindb:
-  enable: true
-  fullnameOverride: 'zinc-maindb'
+databases:
+  main:
+    enabled: true
+    type: crd
+    ephemeral: false # Persistent storage for integration testing
+    instances: 1
+    storage:
+      size: 5Gi
+      storageClass: local-path
 
-maincache:
-  enable: true
-  fullnameOverride: 'zinc-maincache'
+caches:
+  main:
+    enabled: true
+    type: crd
+    ephemeral: false # Persistent cache for integration testing
+    replicas: 1
 
-mainstorage:
-  enable: true
-  fullnameOverride: 'zinc-mainstorage'
+storages:
+  main:
+    enabled: true
+    type: crd
+    ephemeral: false # Persistent storage for integration testing
+    pools:
+      servers: 1
+      volumesPerServer: 1
+    storage:
+      size: 5Gi
+      storageClass: local-path
+    ingress:
+      enabled: true
+      className: traefik
+      console:
+        host: console-mainstorage.zinc.arene.tauros.lvh.me
+      api:
+        host: mainstorage.zinc.arene.tauros.lvh.me

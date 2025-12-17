@@ -1,55 +1,49 @@
-serviceTree:
-  landscape: &landscape lapras
+# Lapras (local development) overrides
+# All infrastructure uses ephemeral storage (in-memory, fast, no persistence)
 
+# Disable secrets management (use local secrets instead)
 bromine:
-  enable: true
-  serviceTree:
-    landscape: *landscape
+  enable: false
 
-api:
-  enabled: true
-  serviceTree:
-    landscape: *landscape
-
-  fullnameOverride: 'zinc-api'
-  replicaCount: 1
-
-  configMountPath: /app/App/Config
-
-  service:
-    type: ClusterIP
-    port: 80
-    containerPort: 9001
-
-  ingress:
+databases:
+  main:
     enabled: true
-    className: traefik
-    hosts:
-      - host: api.zinc.arene.lapras.lvh.me
-        paths:
-          - path: /
-            pathType: ImplementationSpecific
-    tls: []
+    ephemeral: true # Fast local dev, data lost on restart
+    instances: 1
+    storage:
+      size: 1Gi
 
-migration:
-  fullnameOverride: 'zinc-migration'
-  enabled: false
+  # Example: Add a secondary database if needed
+  # secondary:
+  #   enabled: true
+  #   ephemeral: true
+  #   database: arene-zinc-secondary
+  #   instances: 1
 
-maindb:
-  enable: true
-  fullnameOverride: 'zinc-maindb'
+caches:
+  main:
+    enabled: true
+    ephemeral: true # Pure in-memory, no RDB/AOF
+    replicas: 1
 
-maincache:
-  enable: true
-  fullnameOverride: 'zinc-maincache'
-  resources:
-    requests:
-      memory: '256Mi'
-      cpu: '100m'
-    limits:
-      memory: '512Mi'
-      cpu: '250m'
+  # Example: Add session cache
+  # session:
+  #   enabled: true
+  #   ephemeral: true
+  #   replicas: 1
 
-mainstorage:
-  enable: true
-  fullnameOverride: 'zinc-mainstorage'
+storages:
+  main:
+    enabled: true
+    ephemeral: true # emptyDir, data lost on restart
+    pools:
+      servers: 1
+      volumesPerServer: 1
+
+  # Example: Add user uploads storage
+  # uploads:
+  #   enabled: true
+  #   ephemeral: true
+  #   pools:
+  #     servers: 1
+  #     volumesPerServer: 1

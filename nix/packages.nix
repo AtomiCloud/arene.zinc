@@ -7,13 +7,18 @@ let
         dotnetlint = atomi.dotnetlint.override { dotnetPackage = nix-2505.dotnet; };
         helmlint = atomi.helmlint.override { helmPackage = infrautils; };
 
+        # Alias gardenio as garden for convenience
+        garden = gardenio;
+
         inherit
           #infra
           infrautils
           infralint
           atomiutils
           sg
-          pls;
+          pls
+          mirrord
+          ;
       }
     );
     nix-unstable = (
@@ -31,6 +36,9 @@ let
           git
           infisical
           xmlstarlet
+
+          # development tools
+          k6
 
           treefmt
           gitlint

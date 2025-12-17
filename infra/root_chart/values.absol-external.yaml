@@ -1,5 +1,8 @@
+# Example values for testing external infrastructure locally (absol)
+# Use this to test cloud service configurations before deploying to production
+
 serviceTree: &serviceTree
-  landscape: lapras
+  landscape: absol
   platform: arene
   service: &service zinc
   layer: '2'
@@ -58,7 +61,7 @@ api:
     enabled: true
     className: nginx
     hosts:
-      - host: api.zinc.arene.lapras.lvh.me
+      - host: api.zinc.arene.absol.lvh.me
         paths:
           - path: /
             pathType: ImplementationSpecific
@@ -66,7 +69,7 @@ api:
       - secretName: sample
         issuerRef: sample
         hosts:
-          - api.zinc.arene.lapras.lvh.me
+          - api.zinc.arene.absol.lvh.me
   resources:
     limits:
       cpu: '1'
@@ -131,110 +134,44 @@ migration:
   affinity: {}
   topologySpreadConstraints: {}
 
-# Map-based infrastructure configuration
-# Each type (databases, caches, storages) is a map, allowing multiple instances
-
-databases:
-  main:
-    enabled: true
-    type: crd # "crd" or "external"
-
-    # Ephemeral storage (in-memory, no persistence)
-    # For local dev: true (fast, no disk I/O)
-    # For production: false (persistent data)
-    ephemeral: true
-
-    # CRD configuration (CloudNativePG Cluster)
-    instances: 1
-    storage:
-      size: 1Gi # Used when ephemeral=false
-      storageClass: local-path
-    backup:
-      enabled: false
-
-    # External configuration (when type=external)
-    external:
-      host: ''
-      port: 5432
-      database: arene-zinc
-      sslMode: require
-
-    # Common database name
+# External Database (e.g., Neon, RDS)
+maindb:
+  enable: true
+  type: external
+  external:
+    host: ${NEON_HOST} # Set via environment variable
+    port: 5432
     database: arene-zinc
+    sslMode: require
+  secretRef:
+    name: zinc-maindb-credentials
+    keys:
+      username: username
+      password: password
 
-    # Secret reference
-    secretRef:
-      name: zinc-maindb-credentials
-      keys:
-        username: username
-        password: password
-        connectionString: connectionString
+# External Cache (e.g., Redis Cloud, ElastiCache)
+maincache:
+  enable: true
+  type: external
+  external:
+    host: ${REDIS_HOST} # Set via environment variable
+    port: 6379
+    tls: true
+  secretRef:
+    name: zinc-maincache-credentials
+    keys:
+      password: password
 
-caches:
-  main:
-    enabled: true
-    type: crd # "crd" or "external"
-
-    # Ephemeral (in-memory only, no RDB/AOF persistence)
-    # Dragonfly is already in-memory, this controls persistence
-    ephemeral: true
-
-    # CRD configuration (Dragonfly Operator)
-    replicas: 1
-    resources:
-      requests:
-        memory: 256Mi
-        cpu: 100m
-      limits:
-        memory: 512Mi
-        cpu: 500m
-
-    # External configuration (when type=external)
-    external:
-      host: ''
-      port: 6379
-      tls: true
-
-    # Secret reference
-    secretRef:
-      name: zinc-maincache-credentials
-      keys:
-        password: password
-
-storages:
-  main:
-    enabled: true
-    type: crd # "crd" or "external"
-
-    # Ephemeral storage (emptyDir, no persistence)
-    ephemeral: true
-
-    # CRD configuration (MinIO Tenant)
-    pools:
-      servers: 1
-      volumesPerServer: 1
-    storage:
-      size: 1Gi # Used when ephemeral=false
-      storageClass: local-path
-
-    # External configuration (when type=external)
-    external:
-      endpoint: ''
-      region: ''
-      bucket: ''
-
-    # Secret reference
-    secretRef:
-      name: zinc-mainstorage-credentials
-      keys:
-        accessKey: accessKey
-        secretKey: secretKey
-
-    # Console/API ingress (for local dev)
-    ingress:
-      enabled: true
-      className: traefik
-      console:
-        host: console-mainstorage.zinc.arene.lapras.lvh.me
-      api:
-        host: mainstorage.zinc.arene.lapras.lvh.me
+# External Object Storage (e.g., R2, S3)
+mainstorage:
+  enable: true
+  type: external
+  external:
+    endpoint: ${S3_ENDPOINT} # Set via environment variable (e.g., https://r2.cloudflare.com)
+    region: auto
+    bucket: zinc-test-files
+  secretRef:
+    name: zinc-mainstorage-credentials
+    keys:
+      accessKey: accessKey
+      secretKey: secretKey

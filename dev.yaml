@@ -1,0 +1,81 @@
+# Development Configuration
+# LPSM (Landscape, Platform, Service, Module) variables for local development
+
+# Landscape: The environment/cluster you're deploying to
+# Options: lapras (local), absol (preview), tauros (testing)
+landscape: lapras
+
+# Platform: The namespace within the cluster
+# This groups related services together
+platform: arene
+
+# Service: The microservice name (used for resource prefixes)
+# Examples: zinc, copper, iron, etc.
+service: zinc
+
+# Layer: Service layer number (for service tree)
+layer: '2'
+
+# Development Mode
+# - local: Run API locally with mirrord (hot reload)
+# - cluster: Deploy API to cluster (no hot reload)
+mode: local
+
+# Garden Environment Settings (per landscape)
+# These are referenced by Garden and applied to deployments
+
+lapras:
+  # Local development with hot reload
+  useProductionImages: false
+  enablePersistence: false
+  apiReplicas: 1
+  infrastructureType: crd # Use Kubernetes operators
+
+  # Resource sizing for local dev (minimal)
+  dbInstances: 1
+  cacheReplicas: 1
+  storageServers: 1
+
+absol:
+  # Preview environment (ephemeral, for PR testing)
+  useProductionImages: true
+  enablePersistence: false
+  apiReplicas: 1
+  infrastructureType: crd # or "external" for cloud providers
+
+  # Preview-appropriate resources
+  dbInstances: 1
+  cacheReplicas: 1
+  storageServers: 1
+
+tauros:
+  # System integration testing (full E2E with K6)
+  useProductionImages: true
+  enablePersistence: false
+  apiReplicas: 2 # Test HA scenarios
+  infrastructureType: crd
+
+  # Test-appropriate resources
+  dbInstances: 1
+  cacheReplicas: 1
+  storageServers: 1
+
+# ASP.NET Configuration
+aspnetcore:
+  environment: Development
+  urls: 'http://+:9001'
+
+# Mirrord Configuration (for lapras only)
+mirrord:
+  target: pod/zinc-mirrord-target-0
+  targetNamespace: arene
+
+# K3d Cluster Configuration
+k3d:
+  # Cluster naming: k3d-{landscape}
+  name: 'k3d-${landscape}'
+
+  # Port mappings (host:container)
+  ports:
+    - '20010:80@loadbalancer' # HTTP
+    - '20011:443@loadbalancer' # HTTPS

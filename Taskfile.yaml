@@ -8,6 +8,8 @@ includes:
   helm: Taskfile.helm.yaml
   tear: tasks/Taskfile.tear.yaml
   stop: tasks/Taskfile.stop.yaml
+  cluster: tasks/Taskfile.cluster.yaml
+  k6: tasks/Taskfile.k6.yaml
   util: tasks/Taskfile.util.yaml
   unit:
     taskfile: tasks/Taskfile.test.yaml
@@ -69,23 +71,27 @@ tasks:
     cmds:
       - dotnet build --no-restore
   tear:
-    desc: Tears down the local development cluster
+    desc: Tear down the local development cluster
     cmds:
-      - ./scripts/local/delete-k3d-cluster.sh
+      - ./scripts/local/tear.sh
   exec:
     desc: Starts any application in the cluster
     cmds:
       - ./scripts/local/exec.sh ./config/dev.yaml {{.CLI_ARGS}}
   dev:
-    desc: Starts developing application
-    env:
-      DOTNET_WATCH_RESTART_ON_RUDE_EDIT: true
+    desc: Start development with Garden + DNS proxy (hot reload)
     cmds:
-      - ./scripts/local/dev.sh ./config/dev.yaml dotnet watch run --project App
+      - ./scripts/local/dev.sh
+
+  dns-proxy:
+    desc: Start DNS proxy for cluster services (gives you cluster DNS access)
+    cmds:
+      - ./scripts/local/dns-proxy.sh arene k3d-lapras
+
   stop:
-    desc: Stops development in tilt
+    desc: Stop zinc development (keeps infrastructure running)
     cmds:
-      - tilt down
+      - ./scripts/local/stop.sh
 
   latest:
     desc: Get the latest versions of dependencies
@@ -106,7 +112,19 @@ tasks:
         vars:
           NAME: dragonfly
           OCI: ghcr.io/dragonflydb/dragonfly/helm/dragonfly
-  auth:token:
+  'auth:token':
     desc: Obtain Auth token via M2M semantics
     cmds:
       - ./scripts/local/auth-token.sh ./config/dev.yaml {{.CLI_ARGS}}
+
+  preview:
+    desc: Create preview environment with production data (Neon + Tigris branches)
+    env:
+      LANDSCAPE: absol
+    cmds:
+      - ./scripts/preview/create-branches.sh
+
+  'preview:down':
+    desc: Tear down preview environment and delete branches
+    cmds:
+      - ./scripts/preview/delete-branches.sh

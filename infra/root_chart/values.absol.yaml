@@ -1,0 +1,77 @@
+# Absol - Preview environment (ephemeral, production-like)
+# Use this for: PR testing, demos, production build verification
+
+serviceTree: &serviceTree
+  landscape: absol
+  platform: arene
+  service: &service zinc
+  layer: '2'
+
+api:
+  enabled: true
+  replicaCount: 1
+
+  image:
+    repository: arene-zinc-api
+    pullPolicy: IfNotPresent
+    tag: '' # Uses production Dockerfile
+
+  ingress:
+    enabled: true
+    className: nginx
+    hosts:
+      - host: api.zinc.arene.absol.lvh.me
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+
+migration:
+  enabled: true
+
+# Infrastructure: CRD for preview (local k3d cluster)
+# Note: For Neon/Tigris branching, use values.absol-external.yaml
+
+databases:
+  main:
+    enabled: true
+    type: crd
+    ephemeral: false # Persistent storage for preview
+    instances: 1
+    storage:
+      size: 5Gi
+      storageClass: standard
+    backup:
+      enabled: false
+
+caches:
+  main:
+    enabled: true
+    type: crd
+    ephemeral: false # Persistent cache for preview
+    replicas: 1
+    resources:
+      requests:
+        memory: 256Mi
+        cpu: 100m
+      limits:
+        memory: 512Mi
+        cpu: 500m
+
+storages:
+  main:
+    enabled: true
+    type: crd
+    ephemeral: false # Persistent storage for preview
+    pools:
+      servers: 1
+      volumesPerServer: 1
+    storage:
+      size: 5Gi
+      storageClass: standard
+    ingress:
+      enabled: true
+      className: traefik
+      console:
+        host: console-mainstorage.zinc.arene.absol.lvh.me
+      api:
+        host: mainstorage.zinc.arene.absol.lvh.me

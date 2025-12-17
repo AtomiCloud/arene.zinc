@@ -1,0 +1,45 @@
+{{- range $name, $cache := .Values.caches }}
+{{- if and $cache.enabled (eq $cache.type "crd") }}
+---
+apiVersion: dragonflydb.io/v1alpha1
+kind: Dragonfly
+metadata:
+  name: {{ include "root-chart.fullname" $ }}-{{ $name }}cache
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "root-chart.labels" $ | nindent 4 }}
+spec:
+  replicas: {{ $cache.replicas | default 1 }}
+
+  resources:
+    {{- if $cache.resources }}
+    {{- toYaml $cache.resources | nindent 4 }}
+    {{- else }}
+    requests:
+      memory: 256Mi
+      cpu: 100m
+    limits:
+      memory: 512Mi
+      cpu: 500m
+    {{- end }}
+
+  {{- if not $cache.ephemeral }}
+  # Enable persistence (RDB snapshots)
+  snapshot:
+    dir: /data
+    cron: "*/30 * * * *"  # Every 30 minutes
+  {{- else }}
+  # Ephemeral mode - no persistence, pure in-memory
+  # Dragonfly is in-memory by default, omitting snapshot config disables persistence
+  {{- end }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ $cache.secretRef.name | default (printf "%s-%scache-credentials" (include "root-chart.fullname" $) $name) }}
+  namespace: {{ $.Release.Namespace }}
+type: Opaque
+stringData:
+  password: supersecret
+{{- end }}
+{{- end }}

@@ -1,0 +1,24 @@
+version: '3'
+
+tasks:
+  smoke:
+    desc: Run K6 smoke tests via Garden (quick validation)
+    cmds:
+      - garden test zinc-smoke-tests --env lapras
+
+  load:
+    desc: Run K6 load tests via Garden
+    cmds:
+      - garden test zinc-load-tests --env lapras
+
+  stress:
+    desc: Run K6 stress tests via Garden
+    cmds:
+      - garden test zinc-stress-tests --env lapras
+
+  all:
+    desc: Run all K6 tests via Garden
+    cmds:
+      - task: smoke
+      - task: load
+      - task: stress
