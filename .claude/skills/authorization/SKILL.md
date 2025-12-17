@@ -15,7 +15,7 @@ Zinc implements a multi-layered authorization system with three complementary me
 2. **Guard Clauses** - Programmatic checks in BaseController (`GuardOrAll`, `GuardOrAny`)
 3. **Policy Configuration** - YAML-based policy definitions
 
-##Critical Components
+## Critical Components
 
 **Files**:
 

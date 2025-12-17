@@ -1,0 +1,419 @@
+# ============================================================================
+# Platform Infrastructure (Operators)
+# ============================================================================
+# These operators are deployed to the cluster before the application infrastructure
+# In the future, these can be moved to a separate zinc-platform repository
+
+---
+# Ensure namespaces exist before deploying operators
+kind: Run
+type: exec
+name: ensure-namespaces
+description: Create required namespaces for operators and infrastructure
+
+spec:
+  command:
+    - sh
+    - -c
+    - |
+      kubectl create namespace sulfoxide --dry-run=client -o yaml | kubectl apply -f - && \
+      kubectl create namespace arene --dry-run=client -o yaml | kubectl apply -f - && \
+      echo "✅ All namespaces created"
+
+---
+kind: Deploy
+type: helm
+name: dragonfly-operator
+description: Dragonfly operator for cache CRDs
+
+dependencies:
+  - run.ensure-namespaces
+
+spec:
+  namespace: sulfoxide
+
+  chart:
+    name: dragonfly-operator
+    repo: oci://ghcr.io/dragonflydb/dragonfly-operator/helm
+    version: v1.3.0
+
+  values:
+    crds:
+      create: true
+
+---
+kind: Deploy
+type: helm
+name: cloudnative-pg-operator
+description: CloudNativePG operator for PostgreSQL CRDs
+
+dependencies:
+  - run.ensure-namespaces
+
+spec:
+  namespace: sulfoxide
+
+  chart:
+    name: cloudnative-pg
+    repo: https://cloudnative-pg.github.io/charts
+    version: 0.21.6
+
+  values:
+    crds:
+      create: true
+
+---
+kind: Deploy
+type: helm
+name: minio-operator
+description: MinIO operator for S3-compatible storage
+
+dependencies:
+  - run.ensure-namespaces
+
+spec:
+  namespace: sulfoxide
+
+  chart:
+    name: operator
+    repo: https://operator.min.io
+    version: 5.0.15
+
+  values:
+    console:
+      enabled: false # Disable console to save resources in local dev
+
+# ============================================================================
+# Build Actions
+# ============================================================================
+
+---
+# Development image (hot reload)
+kind: Build
+type: container
+name: zinc-api-dev
+include: [lapras]
+description: Development image with dotnet watch
+
+spec:
+  dockerfile: ./infra/dev.Dockerfile
+  targetStage: build
+
+---
+# Production image (optimized)
+kind: Build
+type: container
+name: zinc-api-prod
+include: [absol, tauros]
+description: Production image (multi-stage, optimized)
+
+spec:
+  dockerfile: ./infra/Dockerfile
+  targetStage: runtime
+
+---
+# Migration image
+kind: Build
+type: container
+name: zinc-migration
+include: [lapras, absol, tauros]
+
+spec:
+  dockerfile: ./infra/migrate.Dockerfile
+
+---
+# ============================================================================
+# Deploy Infrastructure
+# ============================================================================
+
+kind: Deploy
+type: helm
+name: zinc
+description: Deploy Zinc infrastructure and API
+
+# Depend on platform operators and namespace setup
+dependencies:
+  - run.ensure-namespaces
+  - deploy.dragonfly-operator
+  - deploy.cloudnative-pg-operator
+  - deploy.minio-operator
+
+spec:
+  chart:
+    path: ./infra/root_chart
+
+  # Helm values
+  values:
+    # Service tree
+    serviceTree:
+      landscape: ${var.landscape}
+      platform: ${var.platform}
+      service: ${var.service}
+      layer: ${var.layer}
+
+    # API deployment (only in absol and tauros - deployed to cluster)
+    api:
+      enabled: ${ environment.name == "absol" || environment.name == "tauros" }
+      replicaCount: ${var.apiReplicas}
+
+    # Migration (always disabled - run via garden run zinc-migration)
+    migration:
+      enabled: false
+
+    # Secrets management (disabled only for lapras local dev)
+    bromine:
+      enable: ${ environment.name != "lapras" }
+
+    # Infrastructure ephemeral storage (lapras uses ephemeral, others use persistent)
+    databases:
+      main:
+        enabled: true
+        type: crd
+        ephemeral: ${ environment.name == 'lapras' }
+        instances: 1
+        storage:
+          size: 1Gi
+          storageClass: local-path
+        backup:
+          enabled: false
+        database: arene-zinc
+        secretRef:
+          name: zinc-maindb-credentials
+          keys:
+            username: username
+            password: password
+            connectionString: connectionString
+
+    caches:
+      main:
+        enabled: true
+        type: crd
+        ephemeral: ${ environment.name == 'lapras' }
+        replicas: 1
+        resources:
+          requests:
+            memory: 256Mi
+            cpu: 100m
+          limits:
+            memory: 512Mi
+            cpu: 500m
+        secretRef:
+          name: zinc-maincache-credentials
+          keys:
+            password: password
+
+    storages:
+      main:
+        enabled: true
+        type: crd
+        ephemeral: ${ environment.name == 'lapras' }
+        pools:
+          servers: 1
+          volumesPerServer: 1
+        storage:
+          size: 1Gi
+          storageClass: local-path
+        secretRef:
+          name: zinc-mainstorage-credentials
+          keys:
+            accessKey: accessKey
+            secretKey: secretKey
+        ingress:
+          enabled: true
+          className: traefik
+          console:
+            host: console-mainstorage.zinc.arene.lapras.lvh.me
+          api:
+            host: mainstorage.zinc.arene.lapras.lvh.me
+
+  # Base values file
+  valueFiles:
+    - ./infra/root_chart/values.yaml
+
+---
+# ============================================================================
+# Run Actions (Local Execution)
+# ============================================================================
+
+kind: Run
+type: exec
+name: zinc-api-local
+include: [lapras]
+description: Run API locally with hot reload (connects to cluster services via localhost)
+
+dependencies:
+  - deploy.zinc
+
+spec:
+  command:
+    - dotnet
+    - watch
+    - run
+    - --project
+    - ./App/App.csproj
+
+  env:
+    LANDSCAPE: ${var.landscape}
+    ASPNETCORE_ENVIRONMENT: Development
+    ASPNETCORE_URLS: http://+:9001
+    DOTNET_WATCH_RESTART_ON_RUDE_EDIT: 'true'
+
+    # Connect to cluster services via kubectl port-forward
+    # Use: kubectl port-forward -n arene svc/zinc-root-chart-maindb-rw 5432:5432
+    #      kubectl port-forward -n arene svc/zinc-root-chart-maincache 6379:6379
+    #      kubectl port-forward -n arene svc/zinc-root-chart-mainstorage-hl 9000:9000
+    Atomi_Database__MAIN__Host: localhost
+    Atomi_Database__MAIN__Port: '5432'
+    Atomi_Database__MAIN__Database: arene-zinc
+    Atomi_Database__MAIN__User: app
+    Atomi_Database__MAIN__Password: supersecret
+    Atomi_Database__MAIN__AutoMigrate: 'true'
+
+    Atomi_Cache__MAIN__Host: localhost
+    Atomi_Cache__MAIN__Port: '6379'
+    Atomi_Cache__MAIN__Password: supersecret
+
+    Atomi_BlockStorage__MAIN__Endpoint: http://localhost:9000
+    Atomi_BlockStorage__MAIN__AccessKey: admin
+    Atomi_BlockStorage__MAIN__SecretKey: supersecret
+    Atomi_BlockStorage__MAIN__Bucket: zinc
+
+---
+# Database migration runner
+kind: Run
+type: kubernetes-pod
+name: zinc-migration
+description: Run database migrations
+
+dependencies:
+  - build.zinc-migration
+  - deploy.zinc
+
+spec:
+  image: ${actions.build.zinc-migration.outputs.deployment-image-id}
+  command: ['dotnet', 'run', '--project', '/app/App/App.csproj']
+
+  env:
+    LANDSCAPE: ${var.landscape}
+    Atomi_App__Mode: Migration
+
+    # Database connection
+    Atomi_Database__MAIN__Host: zinc-maindb-rw.arene.svc.cluster.local
+    Atomi_Database__MAIN__Port: '5432'
+    Atomi_Database__MAIN__Database: arene-zinc
+    Atomi_Database__MAIN__User: app
+    Atomi_Database__MAIN__Password: supersecret
+
+  cacheResult: false
+
+---
+# ============================================================================
+# Tests
+# ============================================================================
+
+# Unit tests (NO Garden - run via `pls unit` directly with dotnet test)
+# Integration tests (NO Garden - run via `pls int` directly with dotnet test)
+
+---
+# System Integration Tests (real infrastructure, deployed to Tauros)
+kind: Test
+type: exec
+name: zinc-system-integration-tests
+include: [tauros]
+description: E2E tests against real deployed API and infrastructure
+
+dependencies:
+  - deploy.zinc
+
+spec:
+  command:
+    - dotnet
+    - test
+    - ./IntTest/IntTest.csproj
+    - --configuration
+    - Release
+    - --filter
+    - 'Category=SystemIntegration'
+    - --logger
+    - 'console;verbosity=normal'
+
+  env:
+    LANDSCAPE: tauros
+    # API URL in cluster
+    API_BASE_URL: http://zinc-api.arene.svc.cluster.local:9001
+    # Real infrastructure
+    TEST_DATABASE: 'true'
+    TEST_CACHE: 'true'
+    TEST_STORAGE: 'true'
+
+---
+# K6 Load Tests (Tauros only)
+kind: Test
+type: exec
+name: zinc-load-tests
+include: [tauros]
+description: K6 load and performance tests
+
+dependencies:
+  - deploy.zinc
+
+spec:
+  command:
+    - k6
+    - run
+    - --out
+    - json=./test-results/k6-results.json
+    - ./tests/k6/load-test.js
+
+  env:
+    K6_API_URL: http://zinc-api.arene.svc.cluster.local:9001
+    K6_VUS: '10' # Virtual users
+    K6_DURATION: '30s' # Test duration
+    K6_THRESHOLDS: 'http_req_duration:median<200'
+
+---
+# K6 Stress Tests (Tauros only)
+kind: Test
+type: exec
+name: zinc-stress-tests
+include: [tauros]
+description: K6 stress tests to find breaking points
+
+dependencies:
+  - deploy.zinc
+
+spec:
+  command:
+    - k6
+    - run
+    - --out
+    - json=./test-results/k6-stress-results.json
+    - ./tests/k6/stress-test.js
+
+  env:
+    K6_API_URL: http://zinc-api.arene.svc.cluster.local:9001
+    K6_STAGES: '10s:10,30s:50,10s:100,30s:0' # Ramp up/down pattern
+
+---
+# K6 Smoke Tests (Quick validation)
+kind: Test
+type: exec
+name: zinc-smoke-tests
+include: [tauros, absol]
+description: Quick smoke tests with K6
+
+dependencies:
+  - deploy.zinc
+
+spec:
+  command:
+    - k6
+    - run
+    - --vus
+    - '1'
+    - --duration
+    - '10s'
+    - ./tests/k6/smoke-test.js
+
+  env:
+    K6_API_URL: http://zinc-api.arene.svc.cluster.local:9001

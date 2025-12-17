@@ -2,15 +2,17 @@ version: '3'
 
 tasks:
   default:
-    desc: Stop all everything
+    desc: Stop zinc development (keeps infrastructure running)
     cmds:
-      - task: stop:dev
-      - task: stop:test
-  dev:
-    desc: Stop the development workflow
+      - ./scripts/local/stop.sh
+
+  platform:
+    desc: Stop platform operators (CloudNativePG, MinIO, Dragonfly)
     cmds:
-      - tilt down
-  test:
-    desc: Stop the test workflow
+      - ./scripts/local/stop-platform.sh
+
+  all:
+    desc: Stop everything (zinc + platform operators)
     cmds:
-      - tilt down -- --config config/test.yaml --action test
+      - task: stop:default
+      - task: stop:platform

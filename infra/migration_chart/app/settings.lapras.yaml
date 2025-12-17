@@ -26,8 +26,10 @@ Metrics:
 # Infra-based
 Database:
   MAIN:
-    Host: zinc-maindb
-    User: admin
+    Host: zinc-maindb-rw.arene.svc.cluster.local
+    Port: 5432
+    Database: arene-zinc
+    User: app
     Password: supersecret
     AutoMigrate: true
 

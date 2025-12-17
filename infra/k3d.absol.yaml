@@ -1,0 +1,20 @@
+apiVersion: k3d.io/v1alpha5
+kind: Simple
+metadata:
+  name: absol
+servers: 1
+agents: 0
+network: absol
+image: rancher/k3s:v1.33.4-k3s1
+ports:
+  - port: 20016:80
+    nodeFilters:
+      - loadbalancer
+  - port: 20017:443
+    nodeFilters:
+      - loadbalancer
+registries:
+  create:
+    name: absol.registry.lvh.me
+    host: '0.0.0.0'
+    hostPort: '20018'

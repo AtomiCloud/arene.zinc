@@ -1,0 +1,121 @@
+{{- range $name, $storage := .Values.storages }}
+{{- if and $storage.enabled (eq $storage.type "crd") }}
+---
+apiVersion: minio.min.io/v2
+kind: Tenant
+metadata:
+  name: {{ include "root-chart.fullname" $ }}-{{ $name }}storage
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "root-chart.labels" $ | nindent 4 }}
+spec:
+  pools:
+    - servers: {{ $storage.pools.servers | default 1 }}
+      name: pool-0
+      volumesPerServer: {{ $storage.pools.volumesPerServer | default 1 }}
+
+      {{- if $storage.ephemeral }}
+      # Ephemeral storage - emptyDir (in-memory, data lost on pod restart)
+      volumeClaimTemplate:
+        metadata:
+          name: data
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: {{ $storage.storage.size | default "1Gi" }}
+      {{- else }}
+      # Persistent storage
+      volumeClaimTemplate:
+        metadata:
+          name: data
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: {{ $storage.storage.size | default "10Gi" }}
+          {{- if $storage.storage.storageClass }}
+          storageClassName: {{ $storage.storage.storageClass }}
+          {{- end }}
+      {{- end }}
+
+  configuration:
+    name: {{ include "root-chart.fullname" $ }}-{{ $name }}storage-env-configuration
+
+  requestAutoCert: false
+
+  {{- if $storage.resources }}
+  resources:
+    {{- toYaml $storage.resources | nindent 4 }}
+  {{- end }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ include "root-chart.fullname" $ }}-{{ $name }}storage-env-configuration
+  namespace: {{ $.Release.Namespace }}
+type: Opaque
+stringData:
+  config.env: |-
+    export MINIO_ROOT_USER="admin"
+    export MINIO_ROOT_PASSWORD="supersecret"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ $storage.secretRef.name | default (printf "%s-%sstorage-credentials" (include "root-chart.fullname" $) $name) }}
+  namespace: {{ $.Release.Namespace }}
+type: Opaque
+stringData:
+  accessKey: admin
+  secretKey: supersecret
+---
+{{- if and $storage.ingress $storage.ingress.enabled }}
+# MinIO Console Ingress
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "root-chart.fullname" $ }}-{{ $name }}storage-console
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "root-chart.labels" $ | nindent 4 }}
+spec:
+  ingressClassName: {{ $storage.ingress.className | default "traefik" }}
+  rules:
+    - host: {{ $storage.ingress.console.host | default (printf "console-%sstorage.zinc.arene.lapras.lvh.me" $name) }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "root-chart.fullname" $ }}-{{ $name }}storage-console
+                port:
+                  number: 9090
+---
+# MinIO API Ingress
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "root-chart.fullname" $ }}-{{ $name }}storage-api
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "root-chart.labels" $ | nindent 4 }}
+spec:
+  ingressClassName: {{ $storage.ingress.className | default "traefik" }}
+  rules:
+    - host: {{ $storage.ingress.api.host | default (printf "%sstorage.zinc.arene.lapras.lvh.me" $name) }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "root-chart.fullname" $ }}-{{ $name }}storage-hl
+                port:
+                  number: 9000
+{{- end }}
+{{- end }}
+{{- end }}

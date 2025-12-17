@@ -9,6 +9,9 @@ with packages;
   dev = [
     pls
     git
+    garden
+    mirrord
+    k6
   ];
 
   infra = [
